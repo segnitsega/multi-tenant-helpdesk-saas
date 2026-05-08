@@ -3,6 +3,8 @@ export type SlaPolicyMinutes = {
   resolutionMinutes: number;
 };
 
+export type SlaState = "ok" | "warning" | "breached";
+
 export function computeSlaDueDates(
   createdAt: Date,
   policy: SlaPolicyMinutes | null | undefined,
@@ -24,7 +26,24 @@ export function computeSlaDueDates(
   };
 }
 
-export function remainingMs(dueAt: Date | null | undefined, now = new Date()): number | null {
+export function remainingMs(
+  dueAt: Date | null | undefined,
+  now = new Date(),
+): number | null {
   if (!dueAt) return null;
   return dueAt.getTime() - now.getTime();
+}
+
+export function slaState(
+  dueAt: Date | null | undefined,
+  now: Date,
+  totalMs: number,
+): SlaState {
+  if (!dueAt) return "ok";
+  if (now.getTime() >= dueAt.getTime()) return "breached";
+  if (totalMs <= 0) return "ok";
+
+  const remaining = dueAt.getTime() - now.getTime();
+  const ratio = remaining / totalMs;
+  return ratio > 0.5 ? "ok" : "warning";
 }
