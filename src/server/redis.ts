@@ -2,7 +2,10 @@ import "server-only";
 import Redis from "ioredis";
 import { env } from "@/server/env";
 
-const globalForRedis = globalThis as unknown as { redis?: Redis };
+const globalForRedis = globalThis as unknown as {
+  redis?: Redis;
+  bullRedis?: Redis;
+};
 
 export const redis =
   globalForRedis.redis ??
@@ -11,6 +14,16 @@ export const redis =
     lazyConnect: true,
   });
 
+export function createBullRedis(): Redis {
+  return new Redis(env.REDIS_URL, {
+    maxRetriesPerRequest: null,
+  });
+}
+
+export const bullRedis =
+  globalForRedis.bullRedis ?? createBullRedis();
+
 if (env.NODE_ENV !== "production") {
   globalForRedis.redis = redis;
+  globalForRedis.bullRedis = bullRedis;
 }
