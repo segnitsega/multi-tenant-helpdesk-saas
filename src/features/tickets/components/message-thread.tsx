@@ -1,8 +1,13 @@
 "use client";
 
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Lock } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { AttachmentChip } from "@/features/composer/components/attachment-chip";
+import { Button } from "@/components/ui/button";
+import { retryOutboundMessageAction } from "@/features/tickets/actions";
 import type { TicketMessage } from "@/features/tickets/types";
 import { cn } from "@/lib/utils";
 
@@ -78,10 +83,72 @@ export function MessageThread({
                 dangerouslySetInnerHTML={{ __html: message.bodyHtml }}
               />
               <MessageAttachments slug={slug} message={message} />
+              {!fromCustomer ? (
+                <DeliveryStatus slug={slug} message={message} />
+              ) : null}
             </div>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function DeliveryStatus({
+  slug,
+  message,
+}: {
+  slug: string;
+  message: TicketMessage;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const status = message.deliveryStatus;
+  if (!status) return null;
+
+  const label =
+    status === "QUEUED"
+      ? "Sending…"
+      : status === "SENT"
+        ? "Sent"
+        : status === "FAILED"
+          ? "Failed"
+          : status;
+
+  return (
+    <div className="mt-1.5 flex items-center gap-2 text-[11px]">
+      <span
+        className={cn(
+          "text-muted-foreground",
+          status === "FAILED" && "text-destructive",
+          status === "SENT" && "text-emerald-700 dark:text-emerald-400",
+        )}
+      >
+        {label}
+      </span>
+      {status === "FAILED" ? (
+        <Button
+          type="button"
+          size="xs"
+          variant="outline"
+          disabled={pending}
+          onClick={() => {
+            startTransition(async () => {
+              const result = await retryOutboundMessageAction(slug, {
+                messageId: message.id,
+              });
+              if (!result.ok) {
+                toast.error(result.error.message);
+                return;
+              }
+              toast.success("Retry queued");
+              router.refresh();
+            });
+          }}
+        >
+          Retry
+        </Button>
+      ) : null}
     </div>
   );
 }

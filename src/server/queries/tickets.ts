@@ -153,6 +153,7 @@ export async function getTicketByNumberQuery(
       kind: m.kind,
       bodyHtml: m.bodyHtml,
       bodyText: m.bodyText,
+      deliveryStatus: m.deliveryStatus,
       createdAt: m.createdAt.toISOString(),
       attachments: (attachmentsByMessage.get(m.id) ?? []).map((row) => ({
         id: row.id,

@@ -34,6 +34,7 @@ export type TicketMessage = {
   kind: string;
   bodyHtml: string;
   bodyText: string;
+  deliveryStatus: string | null;
   createdAt: string;
   attachments: TicketAttachment[];
 };
