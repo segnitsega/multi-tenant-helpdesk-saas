@@ -11,7 +11,11 @@ import {
   mergeTickets,
   updateTicket,
 } from "@/server/services/ticket.service";
-import { addNote, addReply } from "@/server/services/message.service";
+import {
+  addNote,
+  addReply,
+  retryOutboundMessage,
+} from "@/server/services/message.service";
 import { confirmAttachment } from "@/server/services/attachment.service";
 import {
   getTicketByNumberQuery,
@@ -116,6 +120,15 @@ export const confirmAttachmentAction = tenantAction(
     const attachment = await confirmAttachment(ctx, input.attachmentId);
     if (!attachment) throw new Error("Attachment not found");
     return { id: attachment.id, status: attachment.status };
+  },
+);
+
+export const retryOutboundMessageAction = tenantAction(
+  "ticket.reply",
+  z.object({ messageId: z.string().uuid() }),
+  async (ctx, input) => {
+    const message = await retryOutboundMessage(ctx, input.messageId);
+    return { id: message.id };
   },
 );
 

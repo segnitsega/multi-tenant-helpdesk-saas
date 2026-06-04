@@ -3,6 +3,7 @@ import { withTenantDb, type DbTx } from "@/server/db";
 import { NotFoundError } from "@/lib/api-error";
 import { sanitizeAndPlainText } from "@/lib/sanitize";
 import { linkAttachmentsToMessage } from "@/server/services/attachment.service";
+import { enqueueEmailOutbound } from "@/server/jobs/queues";
 import type { TenantContext } from "@/types/tenant";
 
 async function getTicketByNumberTx(
@@ -60,6 +61,7 @@ export async function addReply(
       kind: "REPLY",
       bodyHtml,
       bodyText,
+      deliveryStatus: "QUEUED",
     });
 
     const ticketPatch: {
@@ -82,7 +84,34 @@ export async function addReply(
     });
   }
 
+  await enqueueEmailOutbound(ctx.workspaceId, message.id);
+
   return message;
+}
+
+export async function retryOutboundMessage(
+  ctx: TenantContext,
+  messageId: string,
+) {
+  const message = await withTenantDb(ctx, async (tx) =>
+    tx.orm.public.Message.where({
+      id: messageId,
+      workspaceId: ctx.workspaceId,
+    }).first(),
+  );
+  if (!message) throw new NotFoundError("Message not found");
+  if (message.kind !== "REPLY" || message.authorType !== "AGENT") {
+    throw new NotFoundError("Message not found");
+  }
+
+  await withTenantDb(ctx, async (tx) => {
+    await tx.orm.public.Message.where({ id: message.id }).update({
+      deliveryStatus: "QUEUED",
+    });
+  });
+
+  await enqueueEmailOutbound(ctx.workspaceId, message.id);
+  return { id: message.id };
 }
 
 export async function addNote(
