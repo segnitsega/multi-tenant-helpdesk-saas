@@ -67,3 +67,19 @@ export async function headObject(key: string): Promise<{
     return null;
   }
 }
+
+export async function putObject(
+  key: string,
+  body: Buffer,
+  contentType: string,
+): Promise<void> {
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: env.S3_BUCKET,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+      ContentLength: body.byteLength,
+    }),
+  );
+}
