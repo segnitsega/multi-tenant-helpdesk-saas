@@ -8,8 +8,13 @@ export type SendEmailInput = {
   headers?: Record<string, string>;
   replyTo?: string;
   from?: string;
+  messageId?: string;
+};
+
+export type SendEmailResult = {
+  messageId: string;
 };
 
 export type EmailProvider = {
-  sendEmail: (input: SendEmailInput) => Promise<void>;
+  sendEmail: (input: SendEmailInput) => Promise<SendEmailResult>;
 };

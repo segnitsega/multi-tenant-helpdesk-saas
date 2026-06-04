@@ -1,6 +1,8 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import nodemailer from "nodemailer";
 import { env } from "@/server/env";
+import { normalizeMessageId } from "@/lib/email-address";
 import type { EmailProvider, SendEmailInput } from "./provider";
 
 export function createSmtpProvider(): EmailProvider {
@@ -14,6 +16,9 @@ export function createSmtpProvider(): EmailProvider {
     async sendEmail(input: SendEmailInput) {
       const from =
         input.from ?? `${env.MAIL_FROM_NAME} <noreply@${env.MAIL_DOMAIN}>`;
+      const messageId =
+        normalizeMessageId(input.messageId) ??
+        normalizeMessageId(`relay.${randomUUID()}@${env.MAIL_DOMAIN}`)!;
 
       await transporter.sendMail({
         from,
@@ -22,8 +27,14 @@ export function createSmtpProvider(): EmailProvider {
         html: input.html,
         text: input.text,
         replyTo: input.replyTo,
-        headers: input.headers,
+        headers: {
+          ...input.headers,
+          "Message-ID": messageId,
+        },
+        messageId,
       });
+
+      return { messageId };
     },
   };
 }
