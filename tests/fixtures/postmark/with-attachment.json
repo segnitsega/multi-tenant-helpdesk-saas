@@ -1,0 +1,33 @@
+{
+  "From": "customer@example.com",
+  "FromName": "Casey Customer",
+  "FromFull": {
+    "Email": "customer@example.com",
+    "Name": "Casey Customer",
+    "MailboxHash": ""
+  },
+  "To": "acme@mail.localhost",
+  "OriginalRecipient": "acme@mail.localhost",
+  "Subject": "Screenshot of the error",
+  "MessageID": "pm-attachment-001",
+  "MailboxHash": "",
+  "Date": "Thu, 13 May 2026 13:00:00 +0000",
+  "TextBody": "Here is a screenshot.",
+  "HtmlBody": "<p>Here is a screenshot.</p>",
+  "StrippedTextReply": "",
+  "Headers": [
+    {
+      "Name": "Message-ID",
+      "Value": "<customer-attach-001@example.com>"
+    }
+  ],
+  "Attachments": [
+    {
+      "Name": "error.png",
+      "Content": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+      "ContentType": "image/png",
+      "ContentLength": 68,
+      "ContentID": ""
+    }
+  ]
+}

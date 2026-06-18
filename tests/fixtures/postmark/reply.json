@@ -1,0 +1,40 @@
+{
+  "From": "customer@example.com",
+  "FromName": "Casey Customer",
+  "FromFull": {
+    "Email": "customer@example.com",
+    "Name": "Casey Customer",
+    "MailboxHash": ""
+  },
+  "To": "acme+t1@mail.localhost",
+  "ToFull": [
+    {
+      "Email": "acme+t1@mail.localhost",
+      "Name": "",
+      "MailboxHash": "t1"
+    }
+  ],
+  "OriginalRecipient": "acme+t1@mail.localhost",
+  "Subject": "Re: Need help with billing",
+  "MessageID": "pm-reply-001",
+  "MailboxHash": "t1",
+  "Date": "Thu, 13 May 2026 11:00:00 +0000",
+  "TextBody": "Thanks, that fixed it.\n\nOn earlier message...",
+  "HtmlBody": "<p>Thanks, that fixed it.</p>",
+  "StrippedTextReply": "Thanks, that fixed it.",
+  "Headers": [
+    {
+      "Name": "Message-ID",
+      "Value": "<customer-reply-001@example.com>"
+    },
+    {
+      "Name": "In-Reply-To",
+      "Value": "<relay.agent-001@mail.localhost>"
+    },
+    {
+      "Name": "References",
+      "Value": "<customer-new-001@example.com> <relay.agent-001@mail.localhost>"
+    }
+  ],
+  "Attachments": []
+}

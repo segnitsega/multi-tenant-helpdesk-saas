@@ -1,0 +1,25 @@
+{
+  "From": "customer@example.com",
+  "FromName": "Casey Customer",
+  "FromFull": {
+    "Email": "customer@example.com",
+    "Name": "Casey Customer",
+    "MailboxHash": ""
+  },
+  "To": "acme@mail.localhost",
+  "OriginalRecipient": "acme@mail.localhost",
+  "Subject": "Need help with billing",
+  "MessageID": "pm-new-thread-001",
+  "MailboxHash": "",
+  "Date": "Thu, 13 May 2026 10:00:05 +0000",
+  "TextBody": "Hi, I was charged twice this month.",
+  "HtmlBody": "<p>Hi, I was charged twice this month.</p>",
+  "StrippedTextReply": "",
+  "Headers": [
+    {
+      "Name": "Message-ID",
+      "Value": "<customer-new-001@example.com>"
+    }
+  ],
+  "Attachments": []
+}

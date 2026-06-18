@@ -1,0 +1,33 @@
+{
+  "From": "noreply@example.com",
+  "FromName": "Out of Office",
+  "FromFull": {
+    "Email": "noreply@example.com",
+    "Name": "Out of Office",
+    "MailboxHash": ""
+  },
+  "To": "acme@mail.localhost",
+  "OriginalRecipient": "acme@mail.localhost",
+  "Subject": "Out of Office: Re: Need help with billing",
+  "MessageID": "pm-auto-reply-001",
+  "MailboxHash": "",
+  "Date": "Thu, 13 May 2026 12:00:00 +0000",
+  "TextBody": "I am away from the office.",
+  "HtmlBody": "<p>I am away from the office.</p>",
+  "StrippedTextReply": "",
+  "Headers": [
+    {
+      "Name": "Message-ID",
+      "Value": "<auto-reply-001@example.com>"
+    },
+    {
+      "Name": "Auto-Submitted",
+      "Value": "auto-replied"
+    },
+    {
+      "Name": "Precedence",
+      "Value": "bulk"
+    }
+  ],
+  "Attachments": []
+}
