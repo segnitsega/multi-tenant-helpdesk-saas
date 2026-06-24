@@ -17,6 +17,11 @@ import {
   isAllowedUploadSize,
 } from "@/config/uploads";
 import type { EmailInboundJob } from "@/server/jobs/queues";
+import {
+  publishMessageCreated,
+  publishTicketCreated,
+  publishTicketUpdated,
+} from "@/lib/realtime-publish";
 
 function visibleBody(email: ReturnType<typeof parsePostmarkInbound>) {
   if (email.strippedReply) {
@@ -140,6 +145,8 @@ export async function processEmailInbound(job: EmailInboundJob) {
         match.type === "existing"
           ? ticketsById.get(match.ticket.id) ?? null
           : null;
+      let createdTicket = false;
+      let reopenPatch: Record<string, unknown> | null = null;
 
       if (!ticket) {
         const number = await allocateTicketNumber(tx, workspaceId);
@@ -153,6 +160,7 @@ export async function processEmailInbound(job: EmailInboundJob) {
           lastMessageAt: now,
           lastCustomerMessageAt: now,
         });
+        createdTicket = true;
       } else {
         const patch: {
           lastMessageAt: Date;
@@ -168,6 +176,7 @@ export async function processEmailInbound(job: EmailInboundJob) {
           patch.status = "OPEN";
           patch.closedAt = null;
           patch.resolvedAt = null;
+          reopenPatch = { status: "OPEN", closedAt: null, resolvedAt: null };
         }
         ticket = await tx.orm.public.Ticket.where({ id: ticket.id }).update(
           patch,
@@ -228,7 +237,12 @@ export async function processEmailInbound(job: EmailInboundJob) {
       return {
         ticketId: ticket.id,
         ticketNumber: ticket.number,
-        messageId: createdMessage.id,
+        ticketSubject: ticket.subject,
+        ticketStatus: ticket.status,
+        ticketPriority: ticket.priority,
+        message: createdMessage,
+        createdTicket,
+        reopenPatch,
         duplicate: false as const,
       };
     });
@@ -238,6 +252,32 @@ export async function processEmailInbound(job: EmailInboundJob) {
       error: null,
       workspaceId: workspace.id,
     });
+
+    if (!("duplicate" in result) || !result.duplicate) {
+      const publishCtx = { workspaceId: workspace.id, membershipId: null };
+      if ("createdTicket" in result && result.createdTicket) {
+        await publishTicketCreated(publishCtx, {
+          id: result.ticketId,
+          number: result.ticketNumber,
+          subject: result.ticketSubject,
+          status: result.ticketStatus,
+          priority: result.ticketPriority,
+        });
+      } else if ("reopenPatch" in result && result.reopenPatch) {
+        await publishTicketUpdated(
+          publishCtx,
+          { id: result.ticketId, number: result.ticketNumber },
+          result.reopenPatch,
+        );
+      }
+      if ("message" in result && result.message) {
+        await publishMessageCreated(publishCtx, {
+          ticketId: result.ticketId,
+          ticketNumber: result.ticketNumber,
+          message: result.message,
+        });
+      }
+    }
 
     return result;
   } catch (error) {
