@@ -17,6 +17,8 @@ import type { TicketFilters } from "@/lib/validators/ticket";
 import type { TicketListItem } from "@/features/tickets/types";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { useOptionalRealtime } from "@/features/realtime/realtime-provider";
 import { Inbox } from "lucide-react";
 
 export function TicketList({
@@ -35,9 +37,12 @@ export function TicketList({
   const currentNumber =
     activeNumber ?? (Number(params.number || 0) || undefined);
   const query = useTicketList(slug, filters, initialPage);
+  const realtime = useOptionalRealtime();
   const [selected, setSelected] = useState<number[]>([]);
   const [newOpen, setNewOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const parentRef = useRef<HTMLDivElement>(null);
+  const newCount = realtime?.newTicketNumbers.length ?? 0;
 
   const tickets = useMemo(
     () => query.data?.pages.flatMap((page) => page.items) ?? [],
@@ -110,7 +115,32 @@ export function TicketList({
         onMerge={mergeSelected}
         onClear={() => setSelected([])}
       />
-      <div ref={parentRef} className="min-h-0 flex-1 overflow-y-auto">
+      {scrolled && newCount > 0 ? (
+        <div className="px-3 py-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            className="w-full"
+            onClick={() => {
+              parentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+              realtime?.clearNewTickets();
+              void query.refetch();
+            }}
+          >
+            {newCount} new ticket{newCount === 1 ? "" : "s"}
+          </Button>
+        </div>
+      ) : null}
+      <div
+        ref={parentRef}
+        className="min-h-0 flex-1 overflow-y-auto"
+        onScroll={(event) => {
+          setScrolled(event.currentTarget.scrollTop > 48);
+          if (event.currentTarget.scrollTop < 24) {
+            realtime?.clearNewTickets();
+          }
+        }}
+      >
         {query.isLoading ? (
           <div className="space-y-2 p-3">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -148,6 +178,7 @@ export function TicketList({
                     ticket={ticket}
                     selected={selected.includes(ticket.number)}
                     active={currentNumber === ticket.number}
+                    highlighted={realtime?.highlighted.has(ticket.number)}
                     onToggle={toggle}
                   />
                 </div>

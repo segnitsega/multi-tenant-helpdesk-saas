@@ -15,12 +15,14 @@ export function TicketRow({
   ticket,
   selected,
   active,
+  highlighted,
   onToggle,
 }: {
   slug: string;
   ticket: TicketListItem;
   selected: boolean;
   active: boolean;
+  highlighted?: boolean;
   onToggle: (number: number, checked: boolean) => void;
 }) {
   const name = ticket.customerName || ticket.customerEmail;
@@ -34,8 +36,9 @@ export function TicketRow({
   return (
     <div
       className={cn(
-        "border-border hover:bg-muted/40 flex items-start gap-2 border-b px-3 py-2.5",
+        "border-border hover:bg-muted/40 flex items-start gap-2 border-b px-3 py-2.5 transition-colors",
         active && "bg-muted/60",
+        highlighted && "bg-sky-50 dark:bg-sky-950/40",
       )}
     >
       <Checkbox
