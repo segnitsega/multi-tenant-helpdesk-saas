@@ -7,6 +7,10 @@ import {
 import { computeSlaDueDates } from "@/lib/sla";
 import { htmlToText } from "@/lib/html";
 import { addEventTx } from "@/server/services/message.service";
+import {
+  publishTicketCreated,
+  publishTicketUpdated,
+} from "@/lib/realtime-publish";
 import type {
   CreateTicketInput,
   TicketFilters,
@@ -130,7 +134,7 @@ function statusPatch(
 }
 
 export async function createTicket(ctx: TenantContext, input: CreateTicketInput) {
-  return withTenantDb(ctx, async (tx) => {
+  const ticket = await withTenantDb(ctx, async (tx) => {
     const email = input.customerEmail.trim().toLowerCase();
     let customer = await tx.orm.public.Customer.where({
       workspaceId: ctx.workspaceId,
@@ -159,7 +163,7 @@ export async function createTicket(ctx: TenantContext, input: CreateTicketInput)
     const dues = computeSlaDueDates(now, policy);
     const bodyText = htmlToText(input.bodyHtml);
 
-    const ticket = await tx.orm.public.Ticket.create({
+    const created = await tx.orm.public.Ticket.create({
       workspaceId: ctx.workspaceId,
       number,
       customerId: customer!.id,
@@ -176,7 +180,7 @@ export async function createTicket(ctx: TenantContext, input: CreateTicketInput)
 
     await tx.orm.public.Message.create({
       workspaceId: ctx.workspaceId,
-      ticketId: ticket.id,
+      ticketId: created.id,
       authorType: "CUSTOMER",
       authorCustomerId: customer!.id,
       kind: "REPLY",
@@ -185,16 +189,19 @@ export async function createTicket(ctx: TenantContext, input: CreateTicketInput)
     });
 
     if (input.tagIds?.length) {
-      await replaceTicketTags(tx, ctx.workspaceId, ticket.id, input.tagIds);
+      await replaceTicketTags(tx, ctx.workspaceId, created.id, input.tagIds);
     }
 
     await addEventTx(tx, ctx, {
-      ticketId: ticket.id,
+      ticketId: created.id,
       bodyText: `Ticket #${number} created`,
     });
 
-    return ticket as TicketRow;
+    return created as TicketRow;
   });
+
+  await publishTicketCreated(ctx, ticket);
+  return ticket;
 }
 
 export async function getTicketByNumber(
@@ -211,7 +218,7 @@ export async function updateTicket(
   number: number,
   input: UpdateTicketInput,
 ) {
-  return withTenantDb(ctx, async (tx) => {
+  const { ticket, patch } = await withTenantDb(ctx, async (tx) => {
     const ticket = await getTicketByNumberTx(tx, ctx.workspaceId, number);
     const now = new Date();
     const patch: Record<string, unknown> = {};
@@ -265,8 +272,18 @@ export async function updateTicket(
       await addEventTx(tx, ctx, { ticketId: ticket.id, bodyText });
     }
 
-    return getTicketByNumberTx(tx, ctx.workspaceId, number);
+    const updated = await getTicketByNumberTx(tx, ctx.workspaceId, number);
+    return { ticket: updated, patch };
   });
+
+  if (Object.keys(patch).length > 0 || input.tagIds) {
+    await publishTicketUpdated(ctx, ticket, {
+      ...patch,
+      ...(input.tagIds ? { tagIds: input.tagIds } : {}),
+    });
+  }
+
+  return ticket;
 }
 
 export async function listTickets(

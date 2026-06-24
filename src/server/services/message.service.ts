@@ -4,6 +4,7 @@ import { NotFoundError } from "@/lib/api-error";
 import { sanitizeAndPlainText } from "@/lib/sanitize";
 import { linkAttachmentsToMessage } from "@/server/services/attachment.service";
 import { enqueueEmailOutbound } from "@/server/jobs/queues";
+import { publishMessageCreated } from "@/lib/realtime-publish";
 import type { TenantContext } from "@/types/tenant";
 
 async function getTicketByNumberTx(
@@ -45,7 +46,7 @@ export async function addReply(
 ) {
   const { bodyHtml, bodyText } = sanitizeAndPlainText(input.bodyHtml);
 
-  const message = await withTenantDb(ctx, async (tx) => {
+  const { message, ticketId } = await withTenantDb(ctx, async (tx) => {
     const ticket = await getTicketByNumberTx(
       tx,
       ctx.workspaceId,
@@ -74,7 +75,7 @@ export async function addReply(
     }
 
     await tx.orm.public.Ticket.where({ id: ticket.id }).update(ticketPatch);
-    return created;
+    return { message: created, ticketId: ticket.id };
   });
 
   if (input.attachmentIds?.length) {
@@ -85,6 +86,11 @@ export async function addReply(
   }
 
   await enqueueEmailOutbound(ctx.workspaceId, message.id);
+  await publishMessageCreated(ctx, {
+    ticketId,
+    ticketNumber: input.ticketNumber,
+    message,
+  });
 
   return message;
 }
@@ -124,14 +130,14 @@ export async function addNote(
 ) {
   const { bodyHtml, bodyText } = sanitizeAndPlainText(input.bodyHtml);
 
-  const message = await withTenantDb(ctx, async (tx) => {
+  const { message, ticketId } = await withTenantDb(ctx, async (tx) => {
     const ticket = await getTicketByNumberTx(
       tx,
       ctx.workspaceId,
       input.ticketNumber,
     );
 
-    return tx.orm.public.Message.create({
+    const created = await tx.orm.public.Message.create({
       workspaceId: ctx.workspaceId,
       ticketId: ticket.id,
       authorType: "AGENT",
@@ -140,6 +146,7 @@ export async function addNote(
       bodyHtml,
       bodyText,
     });
+    return { message: created, ticketId: ticket.id };
   });
 
   if (input.attachmentIds?.length) {
@@ -148,6 +155,12 @@ export async function addNote(
       attachmentIds: input.attachmentIds,
     });
   }
+
+  await publishMessageCreated(ctx, {
+    ticketId,
+    ticketNumber: input.ticketNumber,
+    message,
+  });
 
   return message;
 }
