@@ -1,6 +1,7 @@
 import { auth } from "@/server/auth/auth";
 import { getTenantContext, listWorkspacesForUser } from "@/server/tenancy/context";
 import { AppShell } from "@/components/layout/app-shell";
+import { RealtimeProvider } from "@/features/realtime/realtime-provider";
 
 export default async function WorkspaceLayout({
   children,
@@ -13,22 +14,31 @@ export default async function WorkspaceLayout({
   const ctx = await getTenantContext(slug);
   const session = await auth();
   const workspaces = await listWorkspacesForUser(ctx.userId);
+  const agentName =
+    session?.user?.name?.trim() || session?.user?.email || "Agent";
 
   return (
-    <AppShell
+    <RealtimeProvider
       slug={slug}
-      workspaces={workspaces.map((row) => ({
-        workspaceId: row.workspaceId,
-        name: row.name,
-        slug: row.slug,
-        role: row.role,
-      }))}
-      user={{
-        name: session?.user?.name ?? null,
-        email: session?.user?.email ?? null,
-      }}
+      workspaceId={ctx.workspaceId}
+      membershipId={ctx.membershipId}
+      agentName={agentName}
     >
-      {children}
-    </AppShell>
+      <AppShell
+        slug={slug}
+        workspaces={workspaces.map((row) => ({
+          workspaceId: row.workspaceId,
+          name: row.name,
+          slug: row.slug,
+          role: row.role,
+        }))}
+        user={{
+          name: session?.user?.name ?? null,
+          email: session?.user?.email ?? null,
+        }}
+      >
+        {children}
+      </AppShell>
+    </RealtimeProvider>
   );
 }
