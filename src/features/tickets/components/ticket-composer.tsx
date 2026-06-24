@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,20 +11,33 @@ import { addNoteAction, addReplyAction } from "@/features/tickets/actions";
 export function TicketComposer({
   slug,
   ticketNumber,
+  ticketId,
   cannedReplies,
   customerName,
   agentName,
+  onTypingChange,
 }: {
   slug: string;
   ticketNumber: number;
+  ticketId?: string;
   cannedReplies: CannedReplyOption[];
   customerName?: string | null;
   agentName?: string | null;
+  onTypingChange?: (isTyping: boolean) => void;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState("reply");
   const [pending, startTransition] = useTransition();
+  const lastTypingSent = useRef(0);
   const vars = { customerName, agentName, ticketNumber };
+
+  function handleTyping(hasContent: boolean) {
+    if (!onTypingChange || !ticketId) return;
+    const now = Date.now();
+    if (hasContent && now - lastTypingSent.current < 2000) return;
+    lastTypingSent.current = now;
+    onTypingChange(hasContent);
+  }
 
   return (
     <div className="border-border bg-background sticky bottom-0 border-t p-3">
@@ -42,7 +55,9 @@ export function TicketComposer({
             cannedReplies={cannedReplies}
             vars={vars}
             sending={pending}
+            onTypingChange={handleTyping}
             onSend={({ bodyHtml, attachmentIds, afterStatus }) => {
+              onTypingChange?.(false);
               startTransition(async () => {
                 const result = await addReplyAction(slug, {
                   ticketNumber,
@@ -69,7 +84,9 @@ export function TicketComposer({
             cannedReplies={cannedReplies}
             vars={vars}
             sending={pending}
+            onTypingChange={handleTyping}
             onSend={({ bodyHtml, attachmentIds }) => {
+              onTypingChange?.(false);
               startTransition(async () => {
                 const result = await addNoteAction(slug, {
                   ticketNumber,

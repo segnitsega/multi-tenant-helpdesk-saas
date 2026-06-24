@@ -35,6 +35,7 @@ export function Composer({
   cannedReplies,
   vars,
   sending,
+  onTypingChange,
   onSend,
 }: {
   slug: string;
@@ -48,6 +49,7 @@ export function Composer({
     ticketNumber?: number | null;
   };
   sending?: boolean;
+  onTypingChange?: (hasContent: boolean) => void;
   onSend: (input: {
     bodyHtml: string;
     attachmentIds: string[];
@@ -128,6 +130,7 @@ export function Composer({
       const html = current.getHTML();
       setDraftHtml(html);
       const text = current.getText();
+      onTypingChange?.(text.trim().length > 0);
       if (text.startsWith("/")) {
         setPickerOpen(true);
         setPickerQuery(text.slice(1));
