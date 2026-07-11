@@ -29,6 +29,7 @@ export type AutomationJob = {
   workspaceId: string;
   ticketId: string;
   trigger: string;
+  origin?: "automation" | "user" | "system" | "email";
 };
 
 export type CleanupJob = {
@@ -97,6 +98,7 @@ export async function enqueueSlaScan(workspaceId?: string) {
 }
 
 export async function enqueueAutomation(input: AutomationJob) {
+  if (input.origin === "automation") return;
   await automationQueue.add("run", input, {
     jobId: `auto:${input.ticketId}:${input.trigger}:${Date.now()}`,
   });
