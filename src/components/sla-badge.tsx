@@ -4,21 +4,10 @@ import { useEffect, useState } from "react";
 import { formatDistanceStrict } from "date-fns";
 import { TimerIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { remainingMs, slaState } from "@/lib/sla";
 import { cn } from "@/lib/utils";
 
-type SlaTone = "ok" | "warn" | "breached";
-
-function getTone(startsAt: Date, dueAt: Date, now: Date): SlaTone {
-  if (now >= dueAt) return "breached";
-
-  const totalMs = dueAt.getTime() - startsAt.getTime();
-  if (totalMs <= 0) return now >= dueAt ? "breached" : "ok";
-
-  const remainingMs = dueAt.getTime() - now.getTime();
-  const remainingRatio = remainingMs / totalMs;
-
-  return remainingRatio > 0.5 ? "ok" : "warn";
-}
+type SlaTone = "ok" | "warning" | "breached";
 
 function formatSlaLabel(dueAt: Date, now: Date, tone: SlaTone): string {
   const distance = formatDistanceStrict(dueAt, now, {
@@ -34,7 +23,7 @@ function formatSlaLabel(dueAt: Date, now: Date, tone: SlaTone): string {
 
 const TONE_CLASS: Record<SlaTone, string> = {
   ok: "bg-success/10 text-success border-transparent",
-  warn: "bg-warning/10 text-warning border-transparent",
+  warning: "bg-warning/10 text-warning border-transparent",
   breached: "bg-destructive/10 text-destructive border-transparent",
 };
 
@@ -43,7 +32,6 @@ export function SlaBadge({
   dueAt,
   className,
 }: {
-  /** When the SLA clock started (e.g. ticket created / first response window). */
   startsAt: Date | string;
   dueAt: Date | string;
   className?: string;
@@ -53,11 +41,27 @@ export function SlaBadge({
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const id = window.setInterval(() => setNow(new Date()), 30_000);
-    return () => window.clearInterval(id);
-  }, []);
+    const tick = () => {
+      const remaining = remainingMs(due, new Date());
+      const intervalMs =
+        remaining != null && remaining > 0 && remaining < 120_000
+          ? 1_000
+          : 60_000;
+      setNow(new Date());
+      return intervalMs;
+    };
 
-  const tone = getTone(start, due, now);
+    let timer: number;
+    const schedule = () => {
+      const intervalMs = tick();
+      timer = window.setTimeout(schedule, intervalMs);
+    };
+    schedule();
+    return () => window.clearTimeout(timer);
+  }, [due]);
+
+  const totalMs = due.getTime() - start.getTime();
+  const tone = slaState(due, now, totalMs);
   const label = formatSlaLabel(due, now, tone);
 
   return (
