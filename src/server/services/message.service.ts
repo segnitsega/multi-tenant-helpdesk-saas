@@ -166,7 +166,7 @@ export async function addNote(
 }
 
 export async function addEvent(
-  ctx: Pick<TenantContext, "workspaceId" | "membershipId">,
+  ctx: { workspaceId: string; membershipId?: string | null },
   input: { ticketId: string; bodyText: string },
 ) {
   return withTenantDb(ctx, async (tx) => {
@@ -176,14 +176,14 @@ export async function addEvent(
 
 export async function addEventTx(
   tx: DbTx,
-  ctx: Pick<TenantContext, "workspaceId" | "membershipId">,
+  ctx: { workspaceId: string; membershipId?: string | null },
   input: { ticketId: string; bodyText: string },
 ) {
   return tx.orm.public.Message.create({
     workspaceId: ctx.workspaceId,
     ticketId: input.ticketId,
     authorType: "SYSTEM",
-    authorMembershipId: ctx.membershipId,
+    authorMembershipId: ctx.membershipId ?? null,
     kind: "EVENT",
     bodyHtml: `<p>${escapeHtml(input.bodyText)}</p>`,
     bodyText: input.bodyText,

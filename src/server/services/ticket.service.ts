@@ -11,6 +11,7 @@ import {
   publishTicketCreated,
   publishTicketUpdated,
 } from "@/lib/realtime-publish";
+import { enqueueAutomation } from "@/server/jobs/queues";
 import type {
   CreateTicketInput,
   TicketFilters,
@@ -201,6 +202,12 @@ export async function createTicket(ctx: TenantContext, input: CreateTicketInput)
   });
 
   await publishTicketCreated(ctx, ticket);
+  await enqueueAutomation({
+    workspaceId: ctx.workspaceId,
+    ticketId: ticket.id,
+    trigger: "ticket.created",
+    origin: "user",
+  });
   return ticket;
 }
 

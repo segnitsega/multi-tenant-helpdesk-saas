@@ -22,6 +22,7 @@ import {
   publishTicketCreated,
   publishTicketUpdated,
 } from "@/lib/realtime-publish";
+import { enqueueAutomation } from "@/server/jobs/queues";
 
 function visibleBody(email: ReturnType<typeof parsePostmarkInbound>) {
   if (email.strippedReply) {
@@ -275,6 +276,12 @@ export async function processEmailInbound(job: EmailInboundJob) {
           ticketId: result.ticketId,
           ticketNumber: result.ticketNumber,
           message: result.message,
+        });
+        await enqueueAutomation({
+          workspaceId: workspace.id,
+          ticketId: result.ticketId,
+          trigger: result.createdTicket ? "ticket.created" : "message.created",
+          origin: "email",
         });
       }
     }
