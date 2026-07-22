@@ -55,3 +55,6 @@ CREATE TRIGGER tickets_search_trg BEFORE INSERT OR UPDATE OF subject ON tickets
 
 CREATE INDEX IF NOT EXISTS tickets_sla_scan_idx ON tickets (workspace_id, sla_first_response_due_at)
   WHERE first_response_at IS NULL AND NOT sla_first_response_breached;
+
+CREATE INDEX IF NOT EXISTS tickets_sla_resolution_scan_idx ON tickets (workspace_id, sla_resolution_due_at)
+  WHERE resolved_at IS NULL AND NOT sla_resolution_breached;
