@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeSlaDueDates, remainingMs } from "@/lib/sla";
+import { computeSlaDueDates, remainingMs, slaState } from "@/lib/sla";
 import { renderCannedBody } from "@/lib/canned-reply";
 
 describe("SLA helpers", () => {
@@ -30,6 +30,22 @@ describe("SLA helpers", () => {
     const remaining = remainingMs(due);
     expect(remaining).toBeGreaterThan(50_000);
     expect(remainingMs(null)).toBeNull();
+  });
+
+  it("maps sla state from remaining ratio", () => {
+    const start = new Date("2026-07-11T10:00:00.000Z");
+    const due = new Date("2026-07-11T12:00:00.000Z");
+    const total = due.getTime() - start.getTime();
+
+    expect(slaState(due, new Date("2026-07-11T10:30:00.000Z"), total)).toBe(
+      "ok",
+    );
+    expect(slaState(due, new Date("2026-07-11T11:30:00.000Z"), total)).toBe(
+      "warning",
+    );
+    expect(slaState(due, new Date("2026-07-11T12:01:00.000Z"), total)).toBe(
+      "breached",
+    );
   });
 });
 
