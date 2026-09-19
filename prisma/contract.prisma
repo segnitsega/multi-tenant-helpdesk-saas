@@ -1,14 +1,392 @@
 // use prisma-8
 
-// Temporary starter model so Prisma 8 can emit.
-// Next step: replace with Relay models (User, Workspace, Ticket, …).
+// Relay data contract (Prisma 8 PSL).
+// Tenant-owned tables include workspaceId for RLS (Phase 3.3).
+
+enum Role {
+  @@type("pg/text@1")
+  OWNER = "OWNER"
+  ADMIN = "ADMIN"
+  AGENT = "AGENT"
+}
+
+enum Plan {
+  @@type("pg/text@1")
+  FREE     = "FREE"
+  PRO      = "PRO"
+  BUSINESS = "BUSINESS"
+}
+
+enum TicketStatus {
+  @@type("pg/text@1")
+  OPEN     = "OPEN"
+  PENDING  = "PENDING"
+  ON_HOLD  = "ON_HOLD"
+  RESOLVED = "RESOLVED"
+  CLOSED   = "CLOSED"
+}
+
+enum Priority {
+  @@type("pg/text@1")
+  LOW    = "LOW"
+  NORMAL = "NORMAL"
+  HIGH   = "HIGH"
+  URGENT = "URGENT"
+}
+
+enum Channel {
+  @@type("pg/text@1")
+  EMAIL  = "EMAIL"
+  WIDGET = "WIDGET"
+  PORTAL = "PORTAL"
+  MANUAL = "MANUAL"
+}
+
+enum AuthorType {
+  @@type("pg/text@1")
+  AGENT    = "AGENT"
+  CUSTOMER = "CUSTOMER"
+  SYSTEM   = "SYSTEM"
+}
+
+enum MessageKind {
+  @@type("pg/text@1")
+  REPLY = "REPLY"
+  NOTE  = "NOTE"
+  EVENT = "EVENT"
+}
 
 model User {
-  id        Int                  @id @default(autoincrement())
-  email     String               @unique
-  name      String?
-  createdAt DateTime(as: string) @default(now())
-  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now())
+  id              Uuid       @id @onCreate(uuid(7))
+  email           String     @unique
+  name            String?
+  passwordHash    String?    @map("password_hash")
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  createdAt       temporal.CreatedAt @map("created_at")
+  updatedAt       temporal.UpdatedAt @map("updated_at")
 
   @@map("users")
+}
+
+model Workspace {
+  id                   Uuid     @id @onCreate(uuid(7))
+  name                 String
+  slug                 String   @unique
+  plan                 Plan     @default(FREE)
+  stripeCustomerId     String?  @map("stripe_customer_id")
+  stripeSubscriptionId String?  @map("stripe_subscription_id")
+  subscriptionStatus   String?  @map("subscription_status")
+  inboundAddress       String   @unique @map("inbound_address")
+  widgetKey            String   @unique @map("widget_key")
+  timezone             String   @default("UTC")
+  createdAt            temporal.CreatedAt @map("created_at")
+  updatedAt            temporal.UpdatedAt @map("updated_at")
+
+  @@map("workspaces")
+}
+
+model WorkspaceCounter {
+  workspaceId              Uuid @id @map("workspace_id")
+  ticketSeq                Int  @default(0) @map("ticket_seq")
+  lastAssignedMembershipId Uuid? @map("last_assigned_membership_id")
+
+  workspace              Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  lastAssignedMembership Membership? @relation("WorkspaceCounterLastAssignee", fields: [lastAssignedMembershipId], references: [id], onDelete: SetNull)
+
+  @@map("workspace_counters")
+}
+
+model Membership {
+  id         Uuid     @id @onCreate(uuid(7))
+  workspaceId Uuid    @map("workspace_id")
+  userId     Uuid     @map("user_id")
+  role       Role
+  readonly   Boolean  @default(false)
+  createdAt  temporal.CreatedAt @map("created_at")
+  updatedAt  temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+model Invitation {
+  id          Uuid      @id @onCreate(uuid(7))
+  workspaceId Uuid      @map("workspace_id")
+  email       String
+  role        Role
+  tokenHash   String    @unique @map("token_hash")
+  expiresAt   DateTime  @map("expires_at")
+  acceptedAt  DateTime? @map("accepted_at")
+  invitedById Uuid      @map("invited_by_id")
+  createdAt   temporal.CreatedAt @map("created_at")
+
+  workspace Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy Membership @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, email])
+  @@map("invitations")
+}
+
+model Customer {
+  id          Uuid    @id @onCreate(uuid(7))
+  workspaceId Uuid    @map("workspace_id")
+  email       String
+  name        String?
+  phone       String?
+  metadata    Json?
+  createdAt   temporal.CreatedAt @map("created_at")
+  updatedAt   temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, email])
+  @@map("customers")
+}
+
+model Ticket {
+  id                       Uuid         @id @onCreate(uuid(7))
+  workspaceId              Uuid         @map("workspace_id")
+  number                   Int
+  customerId               Uuid         @map("customer_id")
+  subject                  String
+  status                   TicketStatus @default(OPEN)
+  priority                 Priority     @default(NORMAL)
+  channel                  Channel
+  assigneeMembershipId     Uuid?        @map("assignee_membership_id")
+  mergedIntoTicketId       Uuid?        @map("merged_into_ticket_id")
+  firstResponseAt          DateTime?    @map("first_response_at")
+  resolvedAt               DateTime?    @map("resolved_at")
+  closedAt                 DateTime?    @map("closed_at")
+  slaFirstResponseDueAt    DateTime?    @map("sla_first_response_due_at")
+  slaResolutionDueAt       DateTime?    @map("sla_resolution_due_at")
+  slaFirstResponseBreached Boolean      @default(false) @map("sla_first_response_breached")
+  slaResolutionBreached    Boolean      @default(false) @map("sla_resolution_breached")
+  lastMessageAt            DateTime     @map("last_message_at")
+  lastCustomerMessageAt    DateTime?    @map("last_customer_message_at")
+  createdAt                temporal.CreatedAt @map("created_at")
+  updatedAt                temporal.UpdatedAt @map("updated_at")
+
+  workspace  Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  customer   Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  assignee   Membership? @relation("TicketAssignee", fields: [assigneeMembershipId], references: [id], onDelete: SetNull)
+  mergedInto Ticket?     @relation("TicketMerge", fields: [mergedIntoTicketId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, number])
+  @@index([workspaceId, status, lastMessageAt])
+  @@index([workspaceId, assigneeMembershipId, status])
+  @@index([workspaceId, customerId])
+  @@map("tickets")
+}
+
+model Message {
+  id                 Uuid       @id @onCreate(uuid(7))
+  workspaceId        Uuid       @map("workspace_id")
+  ticketId           Uuid       @map("ticket_id")
+  authorType         AuthorType @map("author_type")
+  authorMembershipId Uuid?      @map("author_membership_id")
+  authorCustomerId   Uuid?      @map("author_customer_id")
+  kind               MessageKind
+  bodyHtml           String     @map("body_html")
+  bodyText           String     @map("body_text")
+  emailMessageId     String?    @map("email_message_id")
+  inReplyTo          String?    @map("in_reply_to")
+  deliveryStatus     String?    @map("delivery_status")
+  createdAt          temporal.CreatedAt @map("created_at")
+
+  workspace        Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  ticket           Ticket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorMembership Membership? @relation(fields: [authorMembershipId], references: [id], onDelete: SetNull)
+  authorCustomer   Customer?  @relation(fields: [authorCustomerId], references: [id], onDelete: SetNull)
+
+  @@index([ticketId, createdAt])
+  @@unique([workspaceId, emailMessageId])
+  @@map("messages")
+}
+
+model Attachment {
+  id          Uuid   @id @onCreate(uuid(7))
+  workspaceId Uuid   @map("workspace_id")
+  ticketId    Uuid   @map("ticket_id")
+  messageId   Uuid?  @map("message_id")
+  storageKey  String @map("storage_key")
+  filename    String
+  sizeBytes   Int    @map("size_bytes")
+  mimeType    String @map("mime_type")
+  status      String
+  createdAt   temporal.CreatedAt @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  message   Message?  @relation(fields: [messageId], references: [id], onDelete: SetNull)
+
+  @@index([ticketId])
+  @@map("attachments")
+}
+
+model Tag {
+  id          Uuid   @id @onCreate(uuid(7))
+  workspaceId Uuid   @map("workspace_id")
+  name        String
+  color       String
+  createdAt   temporal.CreatedAt @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+  @@map("tags")
+}
+
+model TicketTag {
+  workspaceId Uuid @map("workspace_id")
+  ticketId    Uuid @map("ticket_id")
+  tagId       Uuid @map("tag_id")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  tag       Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([ticketId, tagId])
+  @@index([workspaceId])
+  @@map("ticket_tags")
+}
+
+model CustomFieldDef {
+  id          Uuid   @id @onCreate(uuid(7))
+  workspaceId Uuid   @map("workspace_id")
+  key         String
+  label       String
+  type        String
+  options     Json?
+  createdAt   temporal.CreatedAt @map("created_at")
+  updatedAt   temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, key])
+  @@map("custom_field_defs")
+}
+
+model TicketCustomValue {
+  workspaceId Uuid @map("workspace_id")
+  ticketId    Uuid @map("ticket_id")
+  fieldId     Uuid @map("field_id")
+  value       Json
+
+  workspace Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  ticket    Ticket        @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  field     CustomFieldDef @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@id([ticketId, fieldId])
+  @@index([workspaceId])
+  @@map("ticket_custom_values")
+}
+
+model CannedReply {
+  id          Uuid    @id @onCreate(uuid(7))
+  workspaceId Uuid    @map("workspace_id")
+  title       String
+  shortcut    String?
+  bodyHtml    String  @map("body_html")
+  createdAt   temporal.CreatedAt @map("created_at")
+  updatedAt   temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@map("canned_replies")
+}
+
+model SlaPolicy {
+  id                   Uuid     @id @onCreate(uuid(7))
+  workspaceId          Uuid     @map("workspace_id")
+  priority             Priority
+  firstResponseMinutes Int      @map("first_response_minutes")
+  resolutionMinutes    Int      @map("resolution_minutes")
+  enabled              Boolean  @default(true)
+  createdAt            temporal.CreatedAt @map("created_at")
+  updatedAt            temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, priority])
+  @@map("sla_policies")
+}
+
+model AutomationRule {
+  id          Uuid    @id @onCreate(uuid(7))
+  workspaceId Uuid    @map("workspace_id")
+  name        String
+  trigger     String
+  conditions  Json
+  actions     Json
+  enabled     Boolean @default(true)
+  position    Int
+  createdAt   temporal.CreatedAt @map("created_at")
+  updatedAt   temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, enabled, position])
+  @@map("automation_rules")
+}
+
+model SavedView {
+  id                 Uuid    @id @onCreate(uuid(7))
+  workspaceId        Uuid    @map("workspace_id")
+  ownerMembershipId  Uuid?   @map("owner_membership_id")
+  name               String
+  filter             Json
+  shared             Boolean @default(false)
+  createdAt          temporal.CreatedAt @map("created_at")
+  updatedAt          temporal.UpdatedAt @map("updated_at")
+
+  workspace       Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  ownerMembership Membership? @relation(fields: [ownerMembershipId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId])
+  @@map("saved_views")
+}
+
+model AuditLog {
+  id                 Uuid   @id @onCreate(uuid(7))
+  workspaceId        Uuid   @map("workspace_id")
+  actorMembershipId  Uuid?  @map("actor_membership_id")
+  action             String
+  targetType         String @map("target_type")
+  targetId           String @map("target_id")
+  metadata           Json?
+  createdAt          temporal.CreatedAt @map("created_at")
+
+  workspace       Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  actorMembership Membership? @relation(fields: [actorMembershipId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+  @@map("audit_logs")
+}
+
+model InboundEmail {
+  id                Uuid    @id @onCreate(uuid(7))
+  workspaceId       Uuid?   @map("workspace_id")
+  providerMessageId String  @unique @map("provider_message_id")
+  payload           Json
+  status            String
+  error             String?
+  createdAt         temporal.CreatedAt @map("created_at")
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+
+  @@map("inbound_emails")
+}
+
+model StripeEvent {
+  id          String    @id
+  type        String
+  processedAt DateTime? @map("processed_at")
+  createdAt   temporal.CreatedAt @map("created_at")
+
+  @@map("stripe_events")
 }
