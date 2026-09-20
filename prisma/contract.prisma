@@ -1,0 +1,14 @@
+// use prisma-8
+
+// Temporary starter model so Prisma 8 can emit.
+// Next step: replace with Relay models (User, Workspace, Ticket, …).
+
+model User {
+  id        Int                  @id @default(autoincrement())
+  email     String               @unique
+  name      String?
+  createdAt DateTime(as: string) @default(now())
+  updatedAt DateTime(as: string) @onCreate(now()) @onUpdate(now())
+
+  @@map("users")
+}
