@@ -8,6 +8,7 @@ const schema = z.object({
   APP_URL: z.string().url(),
   DATABASE_URL: z.string().url(),
   DATABASE_URL_SYSTEM: z.string().url(),
+  MIGRATE_DATABASE_URL: z.string().url().optional(),
   REDIS_URL: z.string().url(),
   AUTH_SECRET: z.string().min(32),
   AUTH_GOOGLE_ID: z.string().optional(),

@@ -15,6 +15,36 @@ const eslintConfig = defineConfig([
     // Prisma-generated contract types (prisma contract emit)
     "prisma/contract.d.ts",
   ]),
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@/server/db/system",
+              message:
+                "systemDb bypasses RLS. Import it only from server/auth, server/tenancy, server/jobs, app/api/webhooks, or tests.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "src/server/auth/**/*.{ts,tsx}",
+      "src/server/tenancy/**/*.{ts,tsx}",
+      "src/server/jobs/**/*.{ts,tsx}",
+      "src/app/api/webhooks/**/*.{ts,tsx}",
+      "src/server/db/system.ts",
+      "tests/**/*.{ts,tsx}",
+    ],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
