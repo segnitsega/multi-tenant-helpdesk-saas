@@ -1,6 +1,6 @@
 import "server-only";
-import type { AppDb } from "../../../prisma/db";
 import { db } from "./client";
+import type { DbTx } from "./types";
 
 export type TenantCtx = {
   workspaceId: string;
@@ -8,15 +8,13 @@ export type TenantCtx = {
   role?: string;
 };
 
-type Tx = Parameters<Parameters<AppDb["transaction"]>[0]>[0];
-
 /**
  * Run work inside a transaction with Postgres RLS scoped to this workspace.
  * `set_config(..., true)` is transaction-local — safe with Neon's pooled connections.
  */
 export async function withTenantDb<T>(
   ctx: Pick<TenantCtx, "workspaceId">,
-  fn: (tx: Tx) => Promise<T>,
+  fn: (tx: DbTx) => Promise<T>,
 ): Promise<T> {
   return db.transaction(async (tx) => {
     await tx.execute(
