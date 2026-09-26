@@ -8,10 +8,6 @@ export type TenantCtx = {
   role?: string;
 };
 
-/**
- * Run work inside a transaction with Postgres RLS scoped to this workspace.
- * `set_config(..., true)` is transaction-local — safe with Neon's pooled connections.
- */
 export async function withTenantDb<T>(
   ctx: Pick<TenantCtx, "workspaceId">,
   fn: (tx: DbTx) => Promise<T>,

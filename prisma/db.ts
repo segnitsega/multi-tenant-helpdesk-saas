@@ -8,7 +8,6 @@ export const contract = contractFromJson<Contract>(contractJson);
 
 export type AppDb = ReturnType<typeof createDb>;
 
-/** Create a typed Postgres client bound to a connection URL. */
 export function createDb(url: string) {
   return postgres({
     contract,
@@ -16,5 +15,4 @@ export function createDb(url: string) {
   });
 }
 
-/** Default CLI / script client (uses DATABASE_URL). Prefer src/server/db in the app. */
 export const db = createDb(process.env["DATABASE_URL"]!);
