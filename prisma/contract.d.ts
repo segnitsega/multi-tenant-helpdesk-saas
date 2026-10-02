@@ -23,9 +23,9 @@ import type {
 } from "@prisma/orm-postgres/contract/types";
 
 export type StorageHash =
-  StorageHashBase<"e8bc31e806c999e224a05a35a20509961fd3d253ca26127de22e277ac59b70b7">;
+  StorageHashBase<"163ae76df607ea1a31f22b20637a9c74fa99f302d5389826fd22518db9a11249">;
 export type ExecutionHash =
-  ExecutionHashBase<"9c08165c98dc49f53a727ede7a5fdce99c072e46f7e602fe93e6b4bc6f12c61c">;
+  ExecutionHashBase<"f258e665cfee98c5a8211437d75449207b7f24d72c60b3c04ebb676f3075e450">;
 export type ProfileHash =
   ProfileHashBase<"3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2">;
 
@@ -854,6 +854,16 @@ export namespace Models {
     readonly [RelationKeys]?:
       "authorCustomer" | "authorMembership" | "ticket" | "workspace";
   };
+  export type public_PasswordResetToken = {
+    createdAt: FieldOutputTypes["public"]["PasswordResetToken"]["createdAt"];
+    expiresAt: FieldOutputTypes["public"]["PasswordResetToken"]["expiresAt"];
+    id: FieldOutputTypes["public"]["PasswordResetToken"]["id"];
+    tokenHash: FieldOutputTypes["public"]["PasswordResetToken"]["tokenHash"];
+    usedAt: FieldOutputTypes["public"]["PasswordResetToken"]["usedAt"];
+    userId: FieldOutputTypes["public"]["PasswordResetToken"]["userId"];
+    user: public_User;
+    readonly [RelationKeys]?: "user";
+  };
   export type public_SavedView = {
     createdAt: FieldOutputTypes["public"]["SavedView"]["createdAt"];
     filter: FieldOutputTypes["public"]["SavedView"]["filter"];
@@ -990,6 +1000,7 @@ export declare const models: {
     Invitation: Models.public_Invitation;
     Membership: Models.public_Membership;
     Message: Models.public_Message;
+    PasswordResetToken: Models.public_PasswordResetToken;
     SavedView: Models.public_SavedView;
     SlaPolicy: Models.public_SlaPolicy;
     StripeEvent: Models.public_StripeEvent;
@@ -2035,6 +2046,73 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly password_reset_tokens: {
+              columns: {
+                readonly created_at: {
+                  readonly dataType: "pg/timestamptz";
+                  readonly codecId: "pg/timestamptz-date@1";
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly expires_at: {
+                  readonly dataType: "pg/timestamptz";
+                  readonly codecId: "pg/timestamptz-date@1";
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: "pg/uuid";
+                  readonly codecId: "pg/uuid@1";
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly token_hash: {
+                  readonly dataType: "pg/text";
+                  readonly codecId: "pg/text@1";
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly used_at: {
+                  readonly dataType: "pg/timestamptz";
+                  readonly codecId: "pg/timestamptz-date@1";
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly user_id: {
+                  readonly dataType: "pg/uuid";
+                  readonly codecId: "pg/uuid@1";
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ["id"] };
+              uniques: readonly [{ readonly columns: readonly ["token_hash"] }];
+              indexes: readonly [
+                {
+                  readonly name: "password_reset_tokens_user_id_idx_6c952402";
+                  readonly prefix: "password_reset_tokens_user_id_idx";
+                  readonly columns: readonly ["user_id"];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: "public" & NamespaceId;
+                    readonly tableName: "password_reset_tokens";
+                    readonly columns: readonly ["user_id"];
+                  };
+                  readonly target: {
+                    readonly namespaceId: "public" & NamespaceId;
+                    readonly tableName: "users";
+                    readonly columns: readonly ["id"];
+                  };
+                },
+              ];
+            };
             readonly saved_views: {
               columns: {
                 readonly created_at: {
@@ -3044,6 +3122,10 @@ type ContractBase = Omit<
     readonly messages: {
       readonly namespace: "public" & NamespaceId;
       readonly model: "Message";
+    };
+    readonly password_reset_tokens: {
+      readonly namespace: "public" & NamespaceId;
+      readonly model: "PasswordResetToken";
     };
     readonly saved_views: {
       readonly namespace: "public" & NamespaceId;
@@ -4146,6 +4228,81 @@ type ContractBase = Omit<
                 readonly kind: { readonly column: "kind" };
                 readonly ticketId: { readonly column: "ticket_id" };
                 readonly workspaceId: { readonly column: "workspace_id" };
+              };
+            };
+          };
+          readonly PasswordResetToken: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: "scalar";
+                  readonly codecId: "pg/timestamptz-date@1";
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly expiresAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: "scalar";
+                  readonly codecId: "pg/timestamptz-date@1";
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: "scalar";
+                  readonly codecId: "pg/uuid@1";
+                };
+              };
+              readonly tokenHash: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: "scalar";
+                  readonly codecId: "pg/text@1";
+                };
+              };
+              readonly usedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: "scalar";
+                  readonly codecId: "pg/timestamptz-date@1";
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: "scalar";
+                  readonly codecId: "pg/uuid@1";
+                };
+              };
+            };
+            readonly relations: {
+              readonly user: {
+                readonly to: {
+                  readonly namespace: "public" & NamespaceId;
+                  readonly model: "User";
+                };
+                readonly cardinality: "N:1";
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ["userId"];
+                  readonly targetFields: readonly ["id"];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: "password_reset_tokens";
+              readonly namespaceId: "public";
+              readonly fields: {
+                readonly createdAt: { readonly column: "created_at" };
+                readonly expiresAt: { readonly column: "expires_at" };
+                readonly id: { readonly column: "id" };
+                readonly tokenHash: { readonly column: "token_hash" };
+                readonly usedAt: { readonly column: "used_at" };
+                readonly userId: { readonly column: "user_id" };
               };
             };
           };
@@ -5562,6 +5719,29 @@ type ContractBase = Omit<
           };
           readonly ref: {
             readonly entry: "messages";
+            readonly field: "id";
+            readonly namespace: "public";
+          };
+        },
+        {
+          readonly onCreate: {
+            readonly id: "timestampNow";
+            readonly kind: "generator";
+            readonly params: { readonly precision: 3 };
+          };
+          readonly ref: {
+            readonly entry: "password_reset_tokens";
+            readonly field: "created_at";
+            readonly namespace: "public";
+          };
+        },
+        {
+          readonly onCreate: {
+            readonly id: "uuidv7";
+            readonly kind: "generator";
+          };
+          readonly ref: {
+            readonly entry: "password_reset_tokens";
             readonly field: "id";
             readonly namespace: "public";
           };
