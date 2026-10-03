@@ -7,7 +7,13 @@ import { Input } from "@/components/ui/input";
 import { loginWithGoogle, signUp } from "@/features/auth/actions";
 import { Field } from "./field";
 
-export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
+export function SignupForm({
+  googleEnabled,
+  defaultEmail = "",
+}: {
+  googleEnabled: boolean;
+  defaultEmail?: string;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [pending, startTransition] = useTransition();
@@ -71,7 +77,8 @@ export function SignupForm({ googleEnabled }: { googleEnabled: boolean }) {
             type="email"
             autoComplete="email"
             required
-            disabled={pending}
+            defaultValue={defaultEmail}
+            disabled={pending || !!defaultEmail}
             aria-invalid={!!fieldErrors.email}
           />
         </Field>

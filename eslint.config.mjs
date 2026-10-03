@@ -36,6 +36,7 @@ const eslintConfig = defineConfig([
     files: [
       "src/server/auth/**/*.{ts,tsx}",
       "src/server/tenancy/**/*.{ts,tsx}",
+      "src/server/services/**/*.{ts,tsx}",
       "src/server/jobs/**/*.{ts,tsx}",
       "src/app/api/webhooks/**/*.{ts,tsx}",
       "src/server/db/system.ts",
