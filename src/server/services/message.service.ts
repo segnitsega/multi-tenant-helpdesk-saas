@@ -1,7 +1,8 @@
 import "server-only";
 import { withTenantDb, type DbTx } from "@/server/db";
 import { NotFoundError } from "@/lib/api-error";
-import { htmlToText } from "@/lib/html";
+import { sanitizeAndPlainText } from "@/lib/sanitize";
+import { linkAttachmentsToMessage } from "@/server/services/attachment.service";
 import type { TenantContext } from "@/types/tenant";
 
 async function getTicketByNumberTx(
@@ -35,24 +36,29 @@ export async function listMessages(
 
 export async function addReply(
   ctx: TenantContext,
-  input: { ticketNumber: number; bodyHtml: string },
+  input: {
+    ticketNumber: number;
+    bodyHtml: string;
+    attachmentIds?: string[];
+  },
 ) {
-  return withTenantDb(ctx, async (tx) => {
+  const { bodyHtml, bodyText } = sanitizeAndPlainText(input.bodyHtml);
+
+  const message = await withTenantDb(ctx, async (tx) => {
     const ticket = await getTicketByNumberTx(
       tx,
       ctx.workspaceId,
       input.ticketNumber,
     );
     const now = new Date();
-    const bodyText = htmlToText(input.bodyHtml);
 
-    const message = await tx.orm.public.Message.create({
+    const created = await tx.orm.public.Message.create({
       workspaceId: ctx.workspaceId,
       ticketId: ticket.id,
       authorType: "AGENT",
       authorMembershipId: ctx.membershipId,
       kind: "REPLY",
-      bodyHtml: input.bodyHtml,
+      bodyHtml,
       bodyText,
     });
 
@@ -66,22 +72,35 @@ export async function addReply(
     }
 
     await tx.orm.public.Ticket.where({ id: ticket.id }).update(ticketPatch);
-
-    return message;
+    return created;
   });
+
+  if (input.attachmentIds?.length) {
+    await linkAttachmentsToMessage(ctx, {
+      messageId: message.id,
+      attachmentIds: input.attachmentIds,
+    });
+  }
+
+  return message;
 }
 
 export async function addNote(
   ctx: TenantContext,
-  input: { ticketNumber: number; bodyHtml: string },
+  input: {
+    ticketNumber: number;
+    bodyHtml: string;
+    attachmentIds?: string[];
+  },
 ) {
-  return withTenantDb(ctx, async (tx) => {
+  const { bodyHtml, bodyText } = sanitizeAndPlainText(input.bodyHtml);
+
+  const message = await withTenantDb(ctx, async (tx) => {
     const ticket = await getTicketByNumberTx(
       tx,
       ctx.workspaceId,
       input.ticketNumber,
     );
-    const bodyText = htmlToText(input.bodyHtml);
 
     return tx.orm.public.Message.create({
       workspaceId: ctx.workspaceId,
@@ -89,10 +108,19 @@ export async function addNote(
       authorType: "AGENT",
       authorMembershipId: ctx.membershipId,
       kind: "NOTE",
-      bodyHtml: input.bodyHtml,
+      bodyHtml,
       bodyText,
     });
   });
+
+  if (input.attachmentIds?.length) {
+    await linkAttachmentsToMessage(ctx, {
+      messageId: message.id,
+      attachmentIds: input.attachmentIds,
+    });
+  }
+
+  return message;
 }
 
 export async function addEvent(
