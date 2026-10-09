@@ -5,6 +5,7 @@ import { ForbiddenError } from "@/lib/api-error";
 import { listMembers } from "@/server/services/membership.service";
 import { listPendingInvitations } from "@/server/services/invitation.service";
 import { TeamSettings } from "@/features/workspaces/components/team-settings";
+import { SettingsLayout } from "@/components/layout/settings-layout";
 
 export default async function TeamSettingsPage({
   params,
@@ -27,25 +28,22 @@ export default async function TeamSettingsPage({
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Team</h1>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Manage members and invitations for this workspace.
-      </p>
-      <div className="mt-8">
-        <TeamSettings
-          slug={slug}
-          currentUserId={ctx.userId}
-          currentRole={ctx.role}
-          members={members}
-          invitations={invitations.map((row) => ({
-            id: row.id,
-            email: row.email,
-            role: row.role,
-            expiresAt: row.expiresAt.toISOString(),
-          }))}
-        />
-      </div>
-    </div>
+    <SettingsLayout
+      title="Team"
+      description="Manage members and invitations for this workspace."
+    >
+      <TeamSettings
+        slug={slug}
+        currentUserId={ctx.userId}
+        currentRole={ctx.role}
+        members={members}
+        invitations={invitations.map((row) => ({
+          id: row.id,
+          email: row.email,
+          role: row.role,
+          expiresAt: row.expiresAt.toISOString(),
+        }))}
+      />
+    </SettingsLayout>
   );
 }
