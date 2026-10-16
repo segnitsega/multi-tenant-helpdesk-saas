@@ -6,6 +6,7 @@ import {
 } from "@/server/services/ticket.service";
 import { listMessages } from "@/server/services/message.service";
 import { listMembers } from "@/server/services/membership.service";
+import { listCannedReplies } from "@/server/services/canned-reply.service";
 import type { TicketFilters } from "@/lib/validators/ticket";
 import type { TenantContext } from "@/types/tenant";
 import type {
@@ -90,10 +91,11 @@ export async function getTicketByNumberQuery(
   number: number,
 ): Promise<TicketDetail> {
   const ticket = await getTicketByNumber(ctx, number);
-  const [messages, members, listItem] = await Promise.all([
+  const [messages, members, listItem, cannedReplies] = await Promise.all([
     listMessages(ctx, number),
     listMembers(ctx.workspaceId),
     enrichTickets(ctx, [ticket]),
+    listCannedReplies(ctx),
   ]);
 
   const item = listItem[0]!;
@@ -105,9 +107,31 @@ export async function getTicketByNumberQuery(
     .filter((row) => row.customerId === ticket.customerId)
     .slice(0, 5);
 
-  const customer = await withTenantDb(ctx, async (tx) =>
-    tx.orm.public.Customer.where({ id: ticket.customerId }).first(),
+  const { customer, messageAttachments } = await withTenantDb(
+    ctx,
+    async (tx) => {
+      const customerRow = await tx.orm.public.Customer.where({
+        id: ticket.customerId,
+      }).first();
+      const attachments = await tx.orm.public.Attachment.where({
+        workspaceId: ctx.workspaceId,
+        ticketId: ticket.id,
+        status: "READY",
+      }).all();
+      return { customer: customerRow, messageAttachments: attachments };
+    },
   );
+
+  const attachmentsByMessage = new Map<string, typeof messageAttachments>();
+  for (const attachment of messageAttachments) {
+    if (!attachment.messageId) continue;
+    const list = attachmentsByMessage.get(attachment.messageId) ?? [];
+    list.push(attachment);
+    attachmentsByMessage.set(attachment.messageId, list);
+  }
+
+  const agent =
+    members.find((member) => member.id === ctx.membershipId) ?? null;
 
   return {
     ticket: {
@@ -130,6 +154,12 @@ export async function getTicketByNumberQuery(
       bodyHtml: m.bodyHtml,
       bodyText: m.bodyText,
       createdAt: m.createdAt.toISOString(),
+      attachments: (attachmentsByMessage.get(m.id) ?? []).map((row) => ({
+        id: row.id,
+        filename: row.filename,
+        mimeType: row.mimeType,
+        sizeBytes: row.sizeBytes,
+      })),
     })),
     members: members.map((m) => ({
       id: m.id,
@@ -142,6 +172,13 @@ export async function getTicketByNumberQuery(
       subject: row.subject,
       status: row.status,
     })),
+    cannedReplies: cannedReplies.map((row) => ({
+      id: row.id,
+      title: row.title,
+      shortcut: row.shortcut,
+      bodyHtml: row.bodyHtml,
+    })),
+    agentName: agent?.name ?? agent?.email ?? null,
   };
 }
 

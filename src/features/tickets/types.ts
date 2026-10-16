@@ -19,6 +19,13 @@ export type TicketListItem = {
   createdAt: string;
 };
 
+export type TicketAttachment = {
+  id: string;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+};
+
 export type TicketMessage = {
   id: string;
   authorType: string;
@@ -28,6 +35,14 @@ export type TicketMessage = {
   bodyHtml: string;
   bodyText: string;
   createdAt: string;
+  attachments: TicketAttachment[];
+};
+
+export type CannedReplySummary = {
+  id: string;
+  title: string;
+  shortcut: string | null;
+  bodyHtml: string;
 };
 
 export type TicketDetail = {
@@ -49,6 +64,8 @@ export type TicketDetail = {
     role: string;
   }[];
   recentTickets: { number: number; subject: string; status: string }[];
+  cannedReplies: CannedReplySummary[];
+  agentName: string | null;
 };
 
 export type InboxViewId =

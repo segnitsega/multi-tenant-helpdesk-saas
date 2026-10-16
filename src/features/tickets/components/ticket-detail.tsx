@@ -18,9 +18,15 @@ export function TicketDetail({
       <div className="flex min-w-0 flex-1 flex-col">
         <TicketHeader slug={slug} detail={detail} />
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <MessageThread messages={detail.messages} />
+          <MessageThread slug={slug} messages={detail.messages} />
         </div>
-        <TicketComposer slug={slug} ticketNumber={detail.ticket.number} />
+        <TicketComposer
+          slug={slug}
+          ticketNumber={detail.ticket.number}
+          cannedReplies={detail.cannedReplies}
+          customerName={detail.customer.name}
+          agentName={detail.agentName}
+        />
       </div>
       <CustomerSidebar slug={slug} detail={detail} />
     </div>

@@ -1,11 +1,18 @@
 "use client";
 
 import { Lock } from "lucide-react";
+import { format } from "date-fns";
+import { AttachmentChip } from "@/features/composer/components/attachment-chip";
 import type { TicketMessage } from "@/features/tickets/types";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 
-export function MessageThread({ messages }: { messages: TicketMessage[] }) {
+export function MessageThread({
+  slug,
+  messages,
+}: {
+  slug: string;
+  messages: TicketMessage[];
+}) {
   return (
     <div className="space-y-3 px-4 py-4">
       {messages.map((message) => {
@@ -37,6 +44,7 @@ export function MessageThread({ messages }: { messages: TicketMessage[] }) {
                 className="prose prose-sm dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: message.bodyHtml }}
               />
+              <MessageAttachments slug={slug} message={message} />
               <p className="text-muted-foreground mt-1 text-[11px]">
                 {format(new Date(message.createdAt), "MMM d, HH:mm")}
               </p>
@@ -69,10 +77,42 @@ export function MessageThread({ messages }: { messages: TicketMessage[] }) {
                 className="prose prose-sm dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: message.bodyHtml }}
               />
+              <MessageAttachments slug={slug} message={message} />
             </div>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function MessageAttachments({
+  slug,
+  message,
+}: {
+  slug: string;
+  message: TicketMessage;
+}) {
+  if (message.attachments.length === 0) return null;
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {message.attachments.map((attachment) => (
+        <AttachmentChip
+          key={attachment.id}
+          href={`/api/w/${slug}/attachments/${attachment.id}`}
+          attachment={{
+            id: attachment.id,
+            filename: attachment.filename,
+            mimeType: attachment.mimeType,
+            sizeBytes: attachment.sizeBytes,
+            progress: 100,
+            status: "ready",
+            previewUrl: attachment.mimeType.startsWith("image/")
+              ? `/api/w/${slug}/attachments/${attachment.id}`
+              : undefined,
+          }}
+        />
+      ))}
     </div>
   );
 }
