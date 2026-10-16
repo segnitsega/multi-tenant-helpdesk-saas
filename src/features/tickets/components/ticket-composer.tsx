@@ -3,40 +3,28 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Composer } from "@/features/composer/components/composer";
+import type { CannedReplyOption } from "@/features/composer/components/canned-reply-picker";
 import { addNoteAction, addReplyAction } from "@/features/tickets/actions";
 
 export function TicketComposer({
   slug,
   ticketNumber,
+  cannedReplies,
+  customerName,
+  agentName,
 }: {
   slug: string;
   ticketNumber: number;
+  cannedReplies: CannedReplyOption[];
+  customerName?: string | null;
+  agentName?: string | null;
 }) {
   const router = useRouter();
   const [tab, setTab] = useState("reply");
-  const [body, setBody] = useState("");
   const [pending, startTransition] = useTransition();
-
-  function send() {
-    if (!body.trim()) return;
-    startTransition(async () => {
-      const html = `<p>${body.trim().replace(/\n/g, "<br/>")}</p>`;
-      const result =
-        tab === "note"
-          ? await addNoteAction(slug, { ticketNumber, bodyHtml: html })
-          : await addReplyAction(slug, { ticketNumber, bodyHtml: html });
-      if (!result.ok) {
-        toast.error(result.error.message);
-        return;
-      }
-      setBody("");
-      toast.success(tab === "note" ? "Note added" : "Reply sent");
-      router.refresh();
-    });
-  }
+  const vars = { customerName, agentName, ticketNumber };
 
   return (
     <div className="border-border bg-background sticky bottom-0 border-t p-3">
@@ -45,28 +33,58 @@ export function TicketComposer({
           <TabsTrigger value="reply">Reply</TabsTrigger>
           <TabsTrigger value="note">Internal note</TabsTrigger>
         </TabsList>
-        <TabsContent value={tab} className="mt-2 space-y-2">
-          <Textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder={
-              tab === "note"
-                ? "Write an internal note…"
-                : "Write a reply to the customer…"
-            }
-            rows={4}
-            onKeyDown={(event) => {
-              if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                event.preventDefault();
-                send();
-              }
+        <TabsContent value="reply" className="mt-2">
+          <Composer
+            slug={slug}
+            ticketNumber={ticketNumber}
+            mode="reply"
+            placeholder="Write a reply to the customer… Type / for canned replies"
+            cannedReplies={cannedReplies}
+            vars={vars}
+            sending={pending}
+            onSend={({ bodyHtml, attachmentIds, afterStatus }) => {
+              startTransition(async () => {
+                const result = await addReplyAction(slug, {
+                  ticketNumber,
+                  bodyHtml,
+                  attachmentIds,
+                  afterStatus,
+                });
+                if (!result.ok) {
+                  toast.error(result.error.message);
+                  return;
+                }
+                toast.success("Reply sent");
+                router.refresh();
+              });
             }}
           />
-          <div className="flex justify-end">
-            <Button onClick={send} disabled={pending || !body.trim()}>
-              {pending ? "Sending…" : tab === "note" ? "Add note" : "Send reply"}
-            </Button>
-          </div>
+        </TabsContent>
+        <TabsContent value="note" className="mt-2">
+          <Composer
+            slug={slug}
+            ticketNumber={ticketNumber}
+            mode="note"
+            placeholder="Write an internal note… Type / for canned replies"
+            cannedReplies={cannedReplies}
+            vars={vars}
+            sending={pending}
+            onSend={({ bodyHtml, attachmentIds }) => {
+              startTransition(async () => {
+                const result = await addNoteAction(slug, {
+                  ticketNumber,
+                  bodyHtml,
+                  attachmentIds,
+                });
+                if (!result.ok) {
+                  toast.error(result.error.message);
+                  return;
+                }
+                toast.success("Note added");
+                router.refresh();
+              });
+            }}
+          />
         </TabsContent>
       </Tabs>
     </div>

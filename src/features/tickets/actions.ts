@@ -12,6 +12,7 @@ import {
   updateTicket,
 } from "@/server/services/ticket.service";
 import { addNote, addReply } from "@/server/services/message.service";
+import { confirmAttachment } from "@/server/services/attachment.service";
 import {
   getTicketByNumberQuery,
   getViewCountsQuery,
@@ -26,6 +27,7 @@ import {
   updateTicketSchema,
 } from "@/lib/validators/ticket";
 import { addNoteSchema, addReplySchema } from "@/lib/validators/message";
+import { confirmUploadSchema } from "@/lib/validators/upload";
 
 const updateTicketActionSchema = updateTicketSchema.and(
   z.object({ number: z.number().int().positive() }),
@@ -84,7 +86,16 @@ export const addReplyAction = tenantAction(
   "ticket.reply",
   addReplySchema,
   async (ctx, input) => {
-    const message = await addReply(ctx, input);
+    const message = await addReply(ctx, {
+      ticketNumber: input.ticketNumber,
+      bodyHtml: input.bodyHtml,
+      attachmentIds: input.attachmentIds,
+    });
+    if (input.afterStatus) {
+      await updateTicket(ctx, input.ticketNumber, {
+        status: input.afterStatus,
+      });
+    }
     return { id: message.id };
   },
 );
@@ -95,6 +106,16 @@ export const addNoteAction = tenantAction(
   async (ctx, input) => {
     const message = await addNote(ctx, input);
     return { id: message.id };
+  },
+);
+
+export const confirmAttachmentAction = tenantAction(
+  "ticket.reply",
+  confirmUploadSchema,
+  async (ctx, input) => {
+    const attachment = await confirmAttachment(ctx, input.attachmentId);
+    if (!attachment) throw new Error("Attachment not found");
+    return { id: attachment.id, status: attachment.status };
   },
 );
 
