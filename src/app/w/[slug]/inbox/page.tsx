@@ -1,12 +1,14 @@
+import { EmptyState } from "@/components/empty-state";
 import { Inbox } from "lucide-react";
-import { PlaceholderPage } from "@/components/layout/placeholder-page";
 
 export default function InboxPage() {
   return (
-    <PlaceholderPage
-      icon={<Inbox />}
-      title="Inbox"
-      description="Ticket list and detail arrive in a later phase. Use the rail or ⌘K to move around."
-    />
+    <div className="flex h-full items-center justify-center">
+      <EmptyState
+        icon={<Inbox />}
+        title="Select a ticket"
+        description="Choose a conversation from the list to read and reply."
+      />
+    </div>
   );
 }
