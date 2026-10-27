@@ -36,10 +36,25 @@ export class BadRequestError extends Error {
   }
 }
 
+export class PlanLimitError extends Error {
+  readonly code = "PLAN_LIMIT" as const;
+  readonly limit: string;
+  readonly plan: string;
+
+  constructor(message: string, opts: { limit: string; plan: string }) {
+    super(message);
+    this.name = "PlanLimitError";
+    this.limit = opts.limit;
+    this.plan = opts.plan;
+  }
+}
+
 export type ApiErrorShape = {
   code: string;
   message: string;
   fieldErrors?: Record<string, string[]>;
+  limit?: string;
+  plan?: string;
 };
 
 export function toFieldErrors(
@@ -57,6 +72,14 @@ export function toFieldErrors(
 }
 
 export function toApiError(error: unknown): ApiErrorShape {
+  if (error instanceof PlanLimitError) {
+    return {
+      code: error.code,
+      message: error.message,
+      limit: error.limit,
+      plan: error.plan,
+    };
+  }
   if (
     error instanceof ForbiddenError ||
     error instanceof NotFoundError ||
