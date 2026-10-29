@@ -34,6 +34,7 @@ import {
   revokeInvitationAction,
   updateMemberRoleAction,
 } from "@/features/workspaces/actions";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 import type { Role } from "@/config/permissions";
 
 type MemberRow = {
@@ -68,6 +69,7 @@ export function TeamSettings({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [planLimitMessage, setPlanLimitMessage] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"ADMIN" | "AGENT">("AGENT");
@@ -82,6 +84,10 @@ export function TeamSettings({
         <p className="text-destructive text-sm" role="alert">
           {error}
         </p>
+      ) : null}
+
+      {planLimitMessage ? (
+        <UpgradePrompt slug={slug} description={planLimitMessage} />
       ) : null}
 
       <section className="space-y-4">
@@ -133,12 +139,18 @@ export function TeamSettings({
                   disabled={pending || !inviteEmail.trim()}
                   onClick={() => {
                     setError(null);
+                    setPlanLimitMessage(null);
                     startTransition(async () => {
                       const result = await inviteMemberAction(slug, {
                         email: inviteEmail,
                         role: inviteRole,
                       });
                       if (!result.ok) {
+                        if (result.error.code === "PLAN_LIMIT") {
+                          setPlanLimitMessage(result.error.message);
+                          setInviteOpen(false);
+                          return;
+                        }
                         setError(result.error.message);
                         return;
                       }

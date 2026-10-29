@@ -30,6 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Field } from "@/features/auth/components/field";
+import { UpgradePrompt } from "@/components/upgrade-prompt";
 import {
   createAutomationRuleAction,
   deleteAutomationRuleAction,
@@ -100,6 +101,7 @@ export function AutomationsSettings({
   const [draft, setDraft] = useState<DraftState>(emptyDraft());
   const [testNumber, setTestNumber] = useState("");
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [planLimitMessage, setPlanLimitMessage] = useState<string | null>(null);
 
   const ordered = useMemo(
     () => [...rules].sort((a, b) => a.position - b.position),
@@ -147,9 +149,15 @@ export function AutomationsSettings({
         ? await updateAutomationRuleAction(slug, { id: editingId, ...payload })
         : await createAutomationRuleAction(slug, payload);
       if (!result.ok) {
+        if (result.error.code === "PLAN_LIMIT") {
+          setPlanLimitMessage(result.error.message);
+          setOpen(false);
+          return;
+        }
         toast.error(result.error.message);
         return;
       }
+      setPlanLimitMessage(null);
       setOpen(false);
       toast.success(editingId ? "Rule updated" : "Rule created");
       router.refresh();
@@ -178,6 +186,9 @@ export function AutomationsSettings({
 
   return (
     <div className="space-y-4">
+      {planLimitMessage ? (
+        <UpgradePrompt slug={slug} description={planLimitMessage} />
+      ) : null}
       <div className="flex items-center justify-between gap-3">
         <p className="text-muted-foreground text-sm">
           Rules run in order on ticket creation and customer messages. Changes
