@@ -1,6 +1,7 @@
 import "server-only";
 import { withTenantDb } from "@/server/db";
 import { NotFoundError } from "@/lib/api-error";
+import { assertWithinPlan } from "@/server/services/billing.service";
 import type { UpdateSlaPolicyInput } from "@/lib/validators/sla";
 import type { TenantContext } from "@/types/tenant";
 
@@ -34,6 +35,10 @@ export async function upsertSlaPolicy(
   ctx: Pick<TenantContext, "workspaceId">,
   input: UpdateSlaPolicyInput,
 ) {
+  if (input.enabled) {
+    await assertWithinPlan(ctx, "enable_sla");
+  }
+
   return withTenantDb(ctx, async (tx) => {
     const existing = await tx.orm.public.SlaPolicy.where({
       workspaceId: ctx.workspaceId,

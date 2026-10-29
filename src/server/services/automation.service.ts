@@ -8,6 +8,7 @@ import {
   type AutomationTicketContext,
 } from "@/lib/automation-evaluator";
 import { pickRoundRobinAssignee } from "@/server/services/assignment.service";
+import { assertWithinPlan } from "@/server/services/billing.service";
 import { addEventTx } from "@/server/services/message.service";
 import { publishTicketUpdated } from "@/lib/realtime-publish";
 import type {
@@ -70,6 +71,8 @@ export async function createAutomationRule(
   ctx: Pick<TenantContext, "workspaceId">,
   input: CreateAutomationRuleInput,
 ) {
+  await assertWithinPlan(ctx, "create_automation");
+
   return withTenantDb(ctx, async (tx) => {
     const existing = await tx.orm.public.AutomationRule.where({
       workspaceId: ctx.workspaceId,

@@ -9,6 +9,7 @@ import {
   ForbiddenError,
   NotFoundError,
 } from "@/lib/api-error";
+import { assertWithinPlan } from "@/server/services/billing.service";
 import type { Role } from "@/config/permissions";
 import type { TenantContext } from "@/types/tenant";
 
@@ -26,6 +27,8 @@ export async function createInvitation(
   ctx: TenantContext,
   input: { email: string; role: Exclude<Role, "OWNER"> },
 ) {
+  await assertWithinPlan(ctx, "invite_member");
+
   const email = input.email.trim().toLowerCase();
   const workspace = await loadWorkspace(ctx.workspaceId);
 
