@@ -1,0 +1,26 @@
+{
+  "id": "evt_test_subscription_deleted",
+  "object": "event",
+  "api_version": "2026-09-30.endive",
+  "created": 1700000300,
+  "type": "customer.subscription.deleted",
+  "livemode": false,
+  "pending_webhooks": 0,
+  "request": { "id": null, "idempotency_key": null },
+  "data": {
+    "object": {
+      "id": "sub_test_billing",
+      "object": "subscription",
+      "customer": "cus_test_billing",
+      "status": "canceled",
+      "metadata": {
+        "workspaceId": "__WORKSPACE_ID__",
+        "plan": "PRO"
+      },
+      "items": {
+        "object": "list",
+        "data": []
+      }
+    }
+  }
+}

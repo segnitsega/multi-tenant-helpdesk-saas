@@ -1,0 +1,35 @@
+{
+  "id": "evt_test_subscription_past_due",
+  "object": "event",
+  "api_version": "2026-09-30.endive",
+  "created": 1700000100,
+  "type": "customer.subscription.updated",
+  "livemode": false,
+  "pending_webhooks": 0,
+  "request": { "id": null, "idempotency_key": null },
+  "data": {
+    "object": {
+      "id": "sub_test_billing",
+      "object": "subscription",
+      "customer": "cus_test_billing",
+      "status": "past_due",
+      "metadata": {
+        "workspaceId": "__WORKSPACE_ID__",
+        "plan": "PRO"
+      },
+      "items": {
+        "object": "list",
+        "data": [
+          {
+            "id": "si_test",
+            "object": "subscription_item",
+            "price": {
+              "id": "price_test_pro",
+              "object": "price"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

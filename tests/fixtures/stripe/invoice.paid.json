@@ -1,0 +1,19 @@
+{
+  "id": "evt_test_invoice_paid",
+  "object": "event",
+  "api_version": "2026-09-30.endive",
+  "created": 1700000200,
+  "type": "invoice.paid",
+  "livemode": false,
+  "pending_webhooks": 0,
+  "request": { "id": null, "idempotency_key": null },
+  "data": {
+    "object": {
+      "id": "in_test_paid",
+      "object": "invoice",
+      "customer": "cus_test_billing",
+      "status": "paid",
+      "subscription": "sub_test_billing"
+    }
+  }
+}
