@@ -78,6 +78,12 @@ async function main() {
     workspaceId: workspace.id,
   }).all();
 
+  await systemDb.orm.public.Workspace.where({ id: workspace.id }).update({
+    plan: "PRO",
+    subscriptionStatus: "active",
+    timezone: "UTC",
+  });
+
   const ctx: TenantContext = {
     userId: owner.id,
     workspaceId: workspace.id,
@@ -91,8 +97,11 @@ async function main() {
     workspaceId: workspace.id,
   }).all();
 
-  if (existingTickets.length < 200) {
-    const toCreate = 200 - existingTickets.length;
+  const HISTORY_DAYS = 45;
+  const TARGET = 220;
+
+  if (existingTickets.length < TARGET) {
+    const toCreate = TARGET - existingTickets.length;
     for (let i = 0; i < toCreate; i++) {
       const n = existingTickets.length + i + 1;
       const priority = PRIORITIES[n % PRIORITIES.length]!;
@@ -101,6 +110,18 @@ async function main() {
         n % 4 === 0
           ? null
           : memberships[n % memberships.length]?.id ?? null;
+      const dayOffset = n % HISTORY_DAYS;
+      const createdAt = new Date(
+        Date.now() - dayOffset * 86_400_000 - (n % 14) * 3_600_000,
+      );
+      const firstResponseAt =
+        n % 5 === 0
+          ? null
+          : new Date(createdAt.getTime() + ((n % 7) + 1) * 15 * 60_000);
+      const resolvedAt =
+        status === "RESOLVED" || status === "CLOSED"
+          ? new Date(createdAt.getTime() + ((n % 11) + 2) * 60 * 60_000)
+          : null;
 
       const ticket = await createTicket(ctx, {
         subject: `Seed ticket ${n}: ${priority.toLowerCase()} issue`,
@@ -108,7 +129,7 @@ async function main() {
         customerEmail: `customer${(n % 30) + 1}@example.com`,
         customerName: `Customer ${(n % 30) + 1}`,
         priority,
-        channel: n % 2 === 0 ? "EMAIL" : "MANUAL",
+        channel: n % 3 === 0 ? "WIDGET" : n % 2 === 0 ? "EMAIL" : "MANUAL",
         assigneeMembershipId: assignee,
       });
 
@@ -127,6 +148,45 @@ async function main() {
       if (status !== "OPEN") {
         await updateTicket(ctx, ticket.number, { status });
       }
+
+      await systemDb.orm.public.Ticket.where({ id: ticket.id }).update({
+        createdAt,
+        lastMessageAt: firstResponseAt ?? createdAt,
+        lastCustomerMessageAt: createdAt,
+        firstResponseAt,
+        resolvedAt,
+        closedAt: status === "CLOSED" ? resolvedAt : null,
+        slaFirstResponseDueAt: new Date(createdAt.getTime() + 2 * 60 * 60_000),
+        slaResolutionDueAt: new Date(createdAt.getTime() + 24 * 60 * 60_000),
+        slaFirstResponseBreached: Boolean(
+          firstResponseAt &&
+            firstResponseAt.getTime() > createdAt.getTime() + 2 * 60 * 60_000,
+        ),
+        slaResolutionBreached: Boolean(
+          resolvedAt &&
+            resolvedAt.getTime() > createdAt.getTime() + 24 * 60 * 60_000,
+        ),
+      });
+    }
+  } else {
+    for (const [index, ticket] of existingTickets.entries()) {
+      if (index >= HISTORY_DAYS * 4) break;
+      const dayOffset = index % HISTORY_DAYS;
+      const createdAt = new Date(
+        Date.now() - dayOffset * 86_400_000 - (index % 9) * 3_600_000,
+      );
+      const firstResponseAt = ticket.firstResponseAt
+        ? new Date(createdAt.getTime() + 45 * 60_000)
+        : null;
+      const resolvedAt = ticket.resolvedAt
+        ? new Date(createdAt.getTime() + 5 * 60 * 60_000)
+        : null;
+      await systemDb.orm.public.Ticket.where({ id: ticket.id }).update({
+        createdAt,
+        lastMessageAt: firstResponseAt ?? createdAt,
+        firstResponseAt,
+        resolvedAt,
+      });
     }
   }
 
@@ -139,7 +199,8 @@ async function main() {
         },
         workspace: "demo",
         agents: agents.map((a) => a.email),
-        ticketTarget: 200,
+        ticketTarget: TARGET,
+        historyDays: HISTORY_DAYS,
       },
       null,
       2,
