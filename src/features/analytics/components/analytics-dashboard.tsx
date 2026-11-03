@@ -1,7 +1,10 @@
-import { KpiCard } from "@/components/charts/kpi-card";
-import { VolumeLineChart } from "@/components/charts/line-chart";
-import { ChannelBarChart, StatusBarChart } from "@/components/charts/bar-chart";
-import { HoursHeatmap } from "@/components/charts/heatmap";
+import {
+  ChannelBarChart,
+  HoursHeatmap,
+  KpiCard,
+  StatusBarChart,
+  VolumeLineChart,
+} from "@/components/charts";
 import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { EmptyState } from "@/components/empty-state";
 import { formatDurationSeconds } from "@/lib/analytics-range";
