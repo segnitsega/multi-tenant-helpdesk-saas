@@ -7,7 +7,8 @@ BEGIN
   FOREACH t IN ARRAY ARRAY[
     'workspace_counters','memberships','invitations','customers','tickets','messages',
     'attachments','tags','ticket_tags','custom_field_defs','ticket_custom_values',
-    'canned_replies','sla_policies','automation_rules','saved_views','audit_logs'
+    'canned_replies','sla_policies','automation_rules','saved_views','audit_logs',
+    'customer_magic_links','widget_settings'
   ] LOOP
     EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
     EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
