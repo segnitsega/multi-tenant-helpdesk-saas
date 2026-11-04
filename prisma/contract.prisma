@@ -404,3 +404,32 @@ model StripeEvent {
 
   @@map("stripe_events")
 }
+
+model CustomerMagicLink {
+  id          Uuid      @id @onCreate(uuid(7))
+  workspaceId Uuid      @map("workspace_id")
+  email       String
+  tokenHash   String    @unique @map("token_hash")
+  expiresAt   DateTime  @map("expires_at")
+  usedAt      DateTime? @map("used_at")
+  createdAt   temporal.CreatedAt @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, email])
+  @@map("customer_magic_links")
+}
+
+model WidgetSettings {
+  workspaceId    Uuid    @id @map("workspace_id")
+  color          String  @default("#2563eb")
+  greeting       String  @default("Hi! How can we help?")
+  allowedOrigins Json    @default(json`[]`) @map("allowed_origins")
+  showPoweredBy  Boolean @default(true) @map("show_powered_by")
+  createdAt      temporal.CreatedAt @map("created_at")
+  updatedAt      temporal.UpdatedAt @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("widget_settings")
+}

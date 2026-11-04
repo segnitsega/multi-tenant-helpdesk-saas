@@ -24,6 +24,10 @@
       "model": "CustomFieldDef",
       "namespace": "public"
     },
+    "customer_magic_links": {
+      "model": "CustomerMagicLink",
+      "namespace": "public"
+    },
     "customers": {
       "model": "Customer",
       "namespace": "public"
@@ -78,6 +82,10 @@
     },
     "users": {
       "model": "User",
+      "namespace": "public"
+    },
+    "widget_settings": {
+      "model": "WidgetSettings",
       "namespace": "public"
     },
     "workspace_counters": {
@@ -311,8 +319,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["messageId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "messageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Message",
@@ -323,8 +335,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["ticketId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "ticketId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Ticket",
@@ -335,8 +351,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -448,8 +468,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["actorMembershipId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "actorMembershipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Membership",
@@ -460,8 +484,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -584,8 +612,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -693,8 +725,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -800,8 +836,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -910,8 +950,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -948,6 +992,113 @@
               },
               "namespaceId": "public",
               "table": "customers"
+            }
+          },
+          "CustomerMagicLink": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "expiresAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenHash": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "workspace": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Workspace",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "expiresAt": {
+                  "column": "expires_at"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "tokenHash": {
+                  "column": "token_hash"
+                },
+                "usedAt": {
+                  "column": "used_at"
+                },
+                "workspaceId": {
+                  "column": "workspace_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "customer_magic_links"
             }
           },
           "InboundEmail": {
@@ -1010,8 +1161,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -1133,8 +1288,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["invitedById"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "invitedById"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Membership",
@@ -1145,8 +1304,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -1257,8 +1420,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["userId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -1269,8 +1436,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -1420,8 +1591,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["authorCustomerId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "authorCustomerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Customer",
@@ -1432,8 +1607,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["authorMembershipId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "authorMembershipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Membership",
@@ -1444,8 +1623,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["ticketId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "ticketId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Ticket",
@@ -1456,8 +1639,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -1570,8 +1757,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["userId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "userId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "User",
@@ -1674,8 +1865,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["ownerMembershipId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "ownerMembershipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Membership",
@@ -1686,8 +1881,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -1802,8 +2001,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -1945,8 +2148,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -2176,8 +2383,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["assigneeMembershipId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "assigneeMembershipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Membership",
@@ -2188,8 +2399,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["customerId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "customerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Customer",
@@ -2200,8 +2415,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["mergedIntoTicketId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "mergedIntoTicketId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Ticket",
@@ -2212,8 +2431,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -2327,8 +2550,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["fieldId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "fieldId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "CustomFieldDef",
@@ -2339,8 +2566,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["ticketId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "ticketId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Ticket",
@@ -2351,8 +2582,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -2408,8 +2643,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["tagId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "tagId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Tag",
@@ -2420,8 +2659,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["ticketId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "ticketId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Ticket",
@@ -2432,8 +2675,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -2545,6 +2792,110 @@
               },
               "namespaceId": "public",
               "table": "users"
+            }
+          },
+          "WidgetSettings": {
+            "fields": {
+              "allowedOrigins": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/json@1",
+                  "kind": "scalar"
+                }
+              },
+              "color": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "greeting": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "showPoweredBy": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "workspaceId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/uuid@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "workspace": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Workspace",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "allowedOrigins": {
+                  "column": "allowed_origins"
+                },
+                "color": {
+                  "column": "color"
+                },
+                "createdAt": {
+                  "column": "created_at"
+                },
+                "greeting": {
+                  "column": "greeting"
+                },
+                "showPoweredBy": {
+                  "column": "show_powered_by"
+                },
+                "updatedAt": {
+                  "column": "updated_at"
+                },
+                "workspaceId": {
+                  "column": "workspace_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "widget_settings"
             }
           },
           "Workspace": {
@@ -2719,8 +3070,12 @@
                 "cardinality": "N:1",
                 "nullable": true,
                 "on": {
-                  "localFields": ["lastAssignedMembershipId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "lastAssignedMembershipId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Membership",
@@ -2731,8 +3086,12 @@
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
-                  "localFields": ["workspaceId"],
-                  "targetFields": ["id"]
+                  "localFields": [
+                    "workspaceId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
                 },
                 "to": {
                   "model": "Workspace",
@@ -2828,12 +3187,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "attachments"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -2844,12 +3207,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["ticket_id"],
+                    "columns": [
+                      "ticket_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "attachments"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   }
@@ -2860,12 +3227,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["message_id"],
+                    "columns": [
+                      "message_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "attachments"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "messages"
                   }
@@ -2873,26 +3244,34 @@
               ],
               "indexes": [
                 {
-                  "columns": ["message_id"],
+                  "columns": [
+                    "message_id"
+                  ],
                   "name": "attachments_message_id_idx_8a7ff1ba",
                   "prefix": "attachments_message_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["ticket_id"],
+                  "columns": [
+                    "ticket_id"
+                  ],
                   "name": "attachments_ticket_id_idx_837c90f6",
                   "prefix": "attachments_ticket_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "attachments_workspace_id_idx_90a9f461",
                   "prefix": "attachments_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -2949,12 +3328,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "audit_logs"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -2965,12 +3348,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["actor_membership_id"],
+                    "columns": [
+                      "actor_membership_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "audit_logs"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   }
@@ -2978,26 +3365,35 @@
               ],
               "indexes": [
                 {
-                  "columns": ["actor_membership_id"],
+                  "columns": [
+                    "actor_membership_id"
+                  ],
                   "name": "audit_logs_actor_membership_id_idx_a5b20b69",
                   "prefix": "audit_logs_actor_membership_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id", "created_at"],
+                  "columns": [
+                    "workspace_id",
+                    "created_at"
+                  ],
                   "name": "audit_logs_workspace_id_created_at_idx_3f0db799",
                   "prefix": "audit_logs_workspace_id_created_at_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "audit_logs_workspace_id_idx_90a9f461",
                   "prefix": "audit_logs_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -3071,12 +3467,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "automation_rules"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3084,20 +3484,28 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id", "enabled", "position"],
+                  "columns": [
+                    "workspace_id",
+                    "enabled",
+                    "position"
+                  ],
                   "name": "automation_rules_workspace_id_enabled_position_idx_2c3a26c1",
                   "prefix": "automation_rules_workspace_id_enabled_position_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "automation_rules_workspace_id_idx_90a9f461",
                   "prefix": "automation_rules_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -3152,12 +3560,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "canned_replies"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3165,14 +3577,18 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "canned_replies_workspace_id_idx_90a9f461",
                   "prefix": "canned_replies_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -3232,12 +3648,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "custom_field_defs"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3245,18 +3665,126 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "custom_field_defs_workspace_id_idx_90a9f461",
                   "prefix": "custom_field_defs_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "key"]
+                  "columns": [
+                    "workspace_id",
+                    "key"
+                  ]
+                }
+              ]
+            },
+            "customer_magic_links": {
+              "columns": {
+                "created_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "expires_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                },
+                "token_hash": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "used_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "workspace_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "customer_magic_links_workspace_id_idx_90a9f461"
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "workspace_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "customer_magic_links"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "workspaces"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "workspace_id",
+                    "email"
+                  ],
+                  "name": "customer_magic_links_workspace_id_email_idx_416255a8",
+                  "prefix": "customer_magic_links_workspace_id_email_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "workspace_id"
+                  ],
+                  "name": "customer_magic_links_workspace_id_idx_90a9f461",
+                  "prefix": "customer_magic_links_workspace_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "token_hash"
+                  ]
                 }
               ]
             },
@@ -3316,12 +3844,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "customers"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3329,18 +3861,25 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "customers_workspace_id_idx_90a9f461",
                   "prefix": "customers_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "email"]
+                  "columns": [
+                    "workspace_id",
+                    "email"
+                  ]
                 }
               ]
             },
@@ -3392,12 +3931,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "inbound_emails"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3405,18 +3948,24 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "inbound_emails_workspace_id_idx_90a9f461",
                   "prefix": "inbound_emails_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["provider_message_id"]
+                  "columns": [
+                    "provider_message_id"
+                  ]
                 }
               ]
             },
@@ -3497,12 +4046,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "invitations"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3513,12 +4066,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["invited_by_id"],
+                    "columns": [
+                      "invited_by_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "invitations"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   }
@@ -3526,30 +4083,41 @@
               ],
               "indexes": [
                 {
-                  "columns": ["invited_by_id"],
+                  "columns": [
+                    "invited_by_id"
+                  ],
                   "name": "invitations_invited_by_id_idx_80b34397",
                   "prefix": "invitations_invited_by_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id", "email"],
+                  "columns": [
+                    "workspace_id",
+                    "email"
+                  ],
                   "name": "invitations_workspace_id_email_idx_416255a8",
                   "prefix": "invitations_workspace_id_email_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "invitations_workspace_id_idx_90a9f461",
                   "prefix": "invitations_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["token_hash"]
+                  "columns": [
+                    "token_hash"
+                  ]
                 }
               ]
             },
@@ -3621,12 +4189,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3637,12 +4209,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["user_id"],
+                    "columns": [
+                      "user_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "users"
                   }
@@ -3650,24 +4226,33 @@
               ],
               "indexes": [
                 {
-                  "columns": ["user_id"],
+                  "columns": [
+                    "user_id"
+                  ],
                   "name": "memberships_user_id_idx_6c952402",
                   "prefix": "memberships_user_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "memberships_workspace_id_idx_90a9f461",
                   "prefix": "memberships_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "user_id"]
+                  "columns": [
+                    "workspace_id",
+                    "user_id"
+                  ]
                 }
               ]
             },
@@ -3773,12 +4358,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "messages"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -3789,12 +4378,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["ticket_id"],
+                    "columns": [
+                      "ticket_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "messages"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   }
@@ -3805,12 +4398,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["author_membership_id"],
+                    "columns": [
+                      "author_membership_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "messages"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   }
@@ -3821,12 +4418,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["author_customer_id"],
+                    "columns": [
+                      "author_customer_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "messages"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "customers"
                   }
@@ -3834,42 +4435,58 @@
               ],
               "indexes": [
                 {
-                  "columns": ["author_customer_id"],
+                  "columns": [
+                    "author_customer_id"
+                  ],
                   "name": "messages_author_customer_id_idx_a8db817a",
                   "prefix": "messages_author_customer_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["author_membership_id"],
+                  "columns": [
+                    "author_membership_id"
+                  ],
                   "name": "messages_author_membership_id_idx_610875c3",
                   "prefix": "messages_author_membership_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["ticket_id", "created_at"],
+                  "columns": [
+                    "ticket_id",
+                    "created_at"
+                  ],
                   "name": "messages_ticket_id_created_at_idx_3e4e2619",
                   "prefix": "messages_ticket_id_created_at_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["ticket_id"],
+                  "columns": [
+                    "ticket_id"
+                  ],
                   "name": "messages_ticket_id_idx_837c90f6",
                   "prefix": "messages_ticket_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "messages_workspace_id_idx_90a9f461",
                   "prefix": "messages_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "email_message_id"]
+                  "columns": [
+                    "workspace_id",
+                    "email_message_id"
+                  ]
                 }
               ]
             },
@@ -3922,12 +4539,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["user_id"],
+                    "columns": [
+                      "user_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "password_reset_tokens"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "users"
                   }
@@ -3935,18 +4556,24 @@
               ],
               "indexes": [
                 {
-                  "columns": ["user_id"],
+                  "columns": [
+                    "user_id"
+                  ],
                   "name": "password_reset_tokens_user_id_idx_6c952402",
                   "prefix": "password_reset_tokens_user_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["token_hash"]
+                  "columns": [
+                    "token_hash"
+                  ]
                 }
               ]
             },
@@ -4010,12 +4637,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "saved_views"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4026,12 +4657,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["owner_membership_id"],
+                    "columns": [
+                      "owner_membership_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "saved_views"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   }
@@ -4039,20 +4674,26 @@
               ],
               "indexes": [
                 {
-                  "columns": ["owner_membership_id"],
+                  "columns": [
+                    "owner_membership_id"
+                  ],
                   "name": "saved_views_owner_membership_id_idx_aa30016f",
                   "prefix": "saved_views_owner_membership_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "saved_views_workspace_id_idx_90a9f461",
                   "prefix": "saved_views_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -4129,12 +4770,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "sla_policies"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4142,18 +4787,25 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "sla_policies_workspace_id_idx_90a9f461",
                   "prefix": "sla_policies_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "priority"]
+                  "columns": [
+                    "workspace_id",
+                    "priority"
+                  ]
                 }
               ]
             },
@@ -4189,7 +4841,9 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": []
             },
@@ -4231,12 +4885,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tags"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4244,18 +4902,25 @@
               ],
               "indexes": [
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "tags_workspace_id_idx_90a9f461",
                   "prefix": "tags_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "name"]
+                  "columns": [
+                    "workspace_id",
+                    "name"
+                  ]
                 }
               ]
             },
@@ -4289,12 +4954,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "ticket_custom_values"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4305,12 +4974,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["ticket_id"],
+                    "columns": [
+                      "ticket_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "ticket_custom_values"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   }
@@ -4321,12 +4994,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["field_id"],
+                    "columns": [
+                      "field_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "ticket_custom_values"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "custom_field_defs"
                   }
@@ -4334,26 +5011,35 @@
               ],
               "indexes": [
                 {
-                  "columns": ["field_id"],
+                  "columns": [
+                    "field_id"
+                  ],
                   "name": "ticket_custom_values_field_id_idx_a58bbd5b",
                   "prefix": "ticket_custom_values_field_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["ticket_id"],
+                  "columns": [
+                    "ticket_id"
+                  ],
                   "name": "ticket_custom_values_ticket_id_idx_837c90f6",
                   "prefix": "ticket_custom_values_ticket_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "ticket_custom_values_workspace_id_idx_90a9f461",
                   "prefix": "ticket_custom_values_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["ticket_id", "field_id"]
+                "columns": [
+                  "ticket_id",
+                  "field_id"
+                ]
               },
               "uniques": []
             },
@@ -4382,12 +5068,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "ticket_tags"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4398,12 +5088,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["ticket_id"],
+                    "columns": [
+                      "ticket_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "ticket_tags"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   }
@@ -4414,12 +5108,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["tag_id"],
+                    "columns": [
+                      "tag_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "ticket_tags"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tags"
                   }
@@ -4427,26 +5125,35 @@
               ],
               "indexes": [
                 {
-                  "columns": ["tag_id"],
+                  "columns": [
+                    "tag_id"
+                  ],
                   "name": "ticket_tags_tag_id_idx_94b47830",
                   "prefix": "ticket_tags_tag_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["ticket_id"],
+                  "columns": [
+                    "ticket_id"
+                  ],
                   "name": "ticket_tags_ticket_id_idx_837c90f6",
                   "prefix": "ticket_tags_ticket_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "ticket_tags_workspace_id_idx_90a9f461",
                   "prefix": "ticket_tags_workspace_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["ticket_id", "tag_id"]
+                "columns": [
+                  "ticket_id",
+                  "tag_id"
+                ]
               },
               "uniques": []
             },
@@ -4643,12 +5350,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4659,12 +5370,16 @@
                   },
                   "onDelete": "restrict",
                   "source": {
-                    "columns": ["customer_id"],
+                    "columns": [
+                      "customer_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "customers"
                   }
@@ -4675,12 +5390,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["assignee_membership_id"],
+                    "columns": [
+                      "assignee_membership_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   }
@@ -4691,12 +5410,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["merged_into_ticket_id"],
+                    "columns": [
+                      "merged_into_ticket_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "tickets"
                   }
@@ -4704,19 +5427,25 @@
               ],
               "indexes": [
                 {
-                  "columns": ["assignee_membership_id"],
+                  "columns": [
+                    "assignee_membership_id"
+                  ],
                   "name": "tickets_assignee_membership_id_idx_0cfc902e",
                   "prefix": "tickets_assignee_membership_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["customer_id"],
+                  "columns": [
+                    "customer_id"
+                  ],
                   "name": "tickets_customer_id_idx_e16dfa6b",
                   "prefix": "tickets_customer_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["merged_into_ticket_id"],
+                  "columns": [
+                    "merged_into_ticket_id"
+                  ],
                   "name": "tickets_merged_into_ticket_id_idx_a17c468f",
                   "prefix": "tickets_merged_into_ticket_id_idx",
                   "unique": false
@@ -4732,30 +5461,44 @@
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id", "customer_id"],
+                  "columns": [
+                    "workspace_id",
+                    "customer_id"
+                  ],
                   "name": "tickets_workspace_id_customer_id_idx_e487adf7",
                   "prefix": "tickets_workspace_id_customer_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id"],
+                  "columns": [
+                    "workspace_id"
+                  ],
                   "name": "tickets_workspace_id_idx_90a9f461",
                   "prefix": "tickets_workspace_id_idx",
                   "unique": false
                 },
                 {
-                  "columns": ["workspace_id", "status", "last_message_at"],
+                  "columns": [
+                    "workspace_id",
+                    "status",
+                    "last_message_at"
+                  ],
                   "name": "tickets_workspace_id_status_last_message_at_idx_71863fc6",
                   "prefix": "tickets_workspace_id_status_last_message_at_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["workspace_id", "number"]
+                  "columns": [
+                    "workspace_id",
+                    "number"
+                  ]
                 }
               ]
             },
@@ -4809,13 +5552,107 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["email"]
+                  "columns": [
+                    "email"
+                  ]
                 }
               ]
+            },
+            "widget_settings": {
+              "columns": {
+                "allowed_origins": {
+                  "codecId": "pg/json@1",
+                  "dataType": "pg/json",
+                  "default": {
+                    "kind": "literal",
+                    "value": []
+                  },
+                  "nullable": false
+                },
+                "color": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "#2563eb"
+                  },
+                  "nullable": false
+                },
+                "created_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "greeting": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "Hi! How can we help?"
+                  },
+                  "nullable": false
+                },
+                "show_powered_by": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "updated_at": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "workspace_id": {
+                  "codecId": "pg/uuid@1",
+                  "dataType": "pg/uuid",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "primaryKey": true
+                  },
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "workspace_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "widget_settings"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "workspaces"
+                  }
+                }
+              ],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "workspace_id"
+                ]
+              },
+              "uniques": []
             },
             "workspace_counters": {
               "columns": {
@@ -4846,12 +5683,16 @@
                   },
                   "onDelete": "cascade",
                   "source": {
-                    "columns": ["workspace_id"],
+                    "columns": [
+                      "workspace_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspace_counters"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspaces"
                   }
@@ -4862,12 +5703,16 @@
                   },
                   "onDelete": "setNull",
                   "source": {
-                    "columns": ["last_assigned_membership_id"],
+                    "columns": [
+                      "last_assigned_membership_id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "workspace_counters"
                   },
                   "target": {
-                    "columns": ["id"],
+                    "columns": [
+                      "id"
+                    ],
                     "namespaceId": "public",
                     "tableName": "memberships"
                   }
@@ -4875,14 +5720,18 @@
               ],
               "indexes": [
                 {
-                  "columns": ["last_assigned_membership_id"],
+                  "columns": [
+                    "last_assigned_membership_id"
+                  ],
                   "name": "workspace_counters_last_assigned_membership_id_idx_87951e5b",
                   "prefix": "workspace_counters_last_assigned_membership_id_idx",
                   "unique": false
                 }
               ],
               "primaryKey": {
-                "columns": ["workspace_id"]
+                "columns": [
+                  "workspace_id"
+                ]
               },
               "uniques": []
             },
@@ -4979,17 +5828,25 @@
               "foreignKeys": [],
               "indexes": [],
               "primaryKey": {
-                "columns": ["id"]
+                "columns": [
+                  "id"
+                ]
               },
               "uniques": [
                 {
-                  "columns": ["slug"]
+                  "columns": [
+                    "slug"
+                  ]
                 },
                 {
-                  "columns": ["inbound_address"]
+                  "columns": [
+                    "inbound_address"
+                  ]
                 },
                 {
-                  "columns": ["widget_key"]
+                  "columns": [
+                    "widget_key"
+                  ]
                 }
               ]
             }
@@ -4997,31 +5854,63 @@
           "valueSet": {
             "AuthorType": {
               "kind": "valueSet",
-              "values": ["AGENT", "CUSTOMER", "SYSTEM"]
+              "values": [
+                "AGENT",
+                "CUSTOMER",
+                "SYSTEM"
+              ]
             },
             "Channel": {
               "kind": "valueSet",
-              "values": ["EMAIL", "WIDGET", "PORTAL", "MANUAL"]
+              "values": [
+                "EMAIL",
+                "WIDGET",
+                "PORTAL",
+                "MANUAL"
+              ]
             },
             "MessageKind": {
               "kind": "valueSet",
-              "values": ["REPLY", "NOTE", "EVENT"]
+              "values": [
+                "REPLY",
+                "NOTE",
+                "EVENT"
+              ]
             },
             "Plan": {
               "kind": "valueSet",
-              "values": ["FREE", "PRO", "BUSINESS"]
+              "values": [
+                "FREE",
+                "PRO",
+                "BUSINESS"
+              ]
             },
             "Priority": {
               "kind": "valueSet",
-              "values": ["LOW", "NORMAL", "HIGH", "URGENT"]
+              "values": [
+                "LOW",
+                "NORMAL",
+                "HIGH",
+                "URGENT"
+              ]
             },
             "Role": {
               "kind": "valueSet",
-              "values": ["OWNER", "ADMIN", "AGENT"]
+              "values": [
+                "OWNER",
+                "ADMIN",
+                "AGENT"
+              ]
             },
             "TicketStatus": {
               "kind": "valueSet",
-              "values": ["OPEN", "PENDING", "ON_HOLD", "RESOLVED", "CLOSED"]
+              "values": [
+                "OPEN",
+                "PENDING",
+                "ON_HOLD",
+                "RESOLVED",
+                "CLOSED"
+              ]
             }
           }
         },
@@ -5029,10 +5918,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "163ae76df607ea1a31f22b20637a9c74fa99f302d5389826fd22518db9a11249"
+    "storageHash": "ef183f2d752114abf9cb162b9e23078f15623268e02bf0e270523587f1382f40"
   },
   "execution": {
-    "executionHash": "f258e665cfee98c5a8211437d75449207b7f24d72c60b3c04ebb676f3075e450",
+    "executionHash": "cac2b64d5a1a7b55b8eb6622af4502d93a6033fa4b88df37a467d68fd4500986",
     "mutations": {
       "defaults": [
         {
@@ -5220,6 +6109,31 @@
           "ref": {
             "entry": "custom_field_defs",
             "field": "updated_at",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "customer_magic_links",
+            "field": "created_at",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv7",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "customer_magic_links",
+            "field": "id",
             "namespace": "public"
           }
         },
@@ -5634,6 +6548,41 @@
           },
           "ref": {
             "entry": "users",
+            "field": "updated_at",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "widget_settings",
+            "field": "created_at",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "onUpdate": {
+            "id": "timestampNow",
+            "kind": "generator",
+            "params": {
+              "precision": 3
+            }
+          },
+          "ref": {
+            "entry": "widget_settings",
             "field": "updated_at",
             "namespace": "public"
           }
