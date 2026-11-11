@@ -26,6 +26,8 @@ export default async function WorkspaceLayout({
     >
       <AppShell
         slug={slug}
+        membershipId={ctx.membershipId}
+        readonly={ctx.readonly}
         workspaces={workspaces.map((row) => ({
           workspaceId: row.workspaceId,
           name: row.name,
