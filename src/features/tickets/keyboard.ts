@@ -1,15 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useHotkeys } from "@/hooks/use-hotkeys";
-
-function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
-  const tag = target.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
-}
 
 export function useInboxHotkeys({
   slug,
@@ -61,12 +53,4 @@ export function useInboxHotkeys({
   useHotkeys("a", () => onAssignMe?.());
   useHotkeys("e", () => onResolve?.());
   useHotkeys("p", () => onPending?.());
-
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (isEditableTarget(event.target)) return;
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
 }

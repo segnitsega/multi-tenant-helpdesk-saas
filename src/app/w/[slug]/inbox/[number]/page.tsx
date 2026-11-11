@@ -17,7 +17,9 @@ export default async function TicketDetailPage({
 
   try {
     const detail = await getTicketByNumberQuery(ctx, number);
-    return <TicketDetail slug={slug} detail={detail} />;
+    return (
+      <TicketDetail slug={slug} detail={detail} readonly={ctx.readonly} />
+    );
   } catch (error) {
     if (error instanceof NotFoundError) notFound();
     throw error;

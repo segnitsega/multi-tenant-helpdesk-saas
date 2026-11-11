@@ -15,9 +15,11 @@ import type { TicketDetail as TicketDetailType } from "@/features/tickets/types"
 export function TicketDetail({
   slug,
   detail,
+  readonly = false,
 }: {
   slug: string;
   detail: TicketDetailType;
+  readonly?: boolean;
 }) {
   const presence = usePresence(detail.ticket.id);
 
@@ -42,6 +44,7 @@ export function TicketDetail({
           cannedReplies={detail.cannedReplies}
           customerName={detail.customer.name}
           agentName={detail.agentName}
+          readonly={readonly}
           onTypingChange={(isTyping) => {
             void presence.setTypingState(isTyping);
           }}
