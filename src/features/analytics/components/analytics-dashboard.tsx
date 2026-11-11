@@ -1,10 +1,10 @@
+import { KpiCard } from "@/components/charts";
 import {
-  ChannelBarChart,
-  HoursHeatmap,
-  KpiCard,
-  StatusBarChart,
-  VolumeLineChart,
-} from "@/components/charts";
+  ChannelBarChartLazy,
+  HoursHeatmapLazy,
+  StatusBarChartLazy,
+  VolumeLineChartLazy,
+} from "@/components/charts/charts-lazy";
 import { UpgradePrompt } from "@/components/upgrade-prompt";
 import { EmptyState } from "@/components/empty-state";
 import { formatDurationSeconds } from "@/lib/analytics-range";
@@ -113,23 +113,23 @@ function AnalyticsDashboardBody({
 
       <section className="border-border space-y-3 rounded-lg border p-4">
         <h2 className="text-sm font-semibold">Ticket volume</h2>
-        <VolumeLineChart data={data.volume} />
+        <VolumeLineChartLazy data={data.volume} />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="border-border space-y-3 rounded-lg border p-4">
           <h2 className="text-sm font-semibold">By status</h2>
-          <StatusBarChart data={data.byStatus} />
+          <StatusBarChartLazy data={data.byStatus} />
         </div>
         <div className="border-border space-y-3 rounded-lg border p-4">
           <h2 className="text-sm font-semibold">By channel</h2>
-          <ChannelBarChart data={data.byChannel} />
+          <ChannelBarChartLazy data={data.byChannel} />
         </div>
       </section>
 
       <section className="border-border space-y-3 rounded-lg border p-4">
         <h2 className="text-sm font-semibold">Busiest hours</h2>
-        <HoursHeatmap data={data.heatmap} />
+        <HoursHeatmapLazy data={data.heatmap} />
       </section>
 
       {data.byTag.length > 0 ? (
