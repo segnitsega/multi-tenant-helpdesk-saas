@@ -38,9 +38,18 @@ function eventMatchesChord(event: KeyboardEvent, chord: string): boolean {
   if (Boolean(event.metaKey) !== wantMeta) return false;
   if (Boolean(event.ctrlKey) !== wantCtrl) return false;
   if (Boolean(event.altKey) !== wantAlt) return false;
-  if (Boolean(event.shiftKey) !== wantShift) return false;
 
-  return event.key.toLowerCase() === key;
+  const keyMatches =
+    event.key.toLowerCase() === key || event.key === key;
+  if (!keyMatches) return false;
+
+  if (Boolean(event.shiftKey) !== wantShift) {
+    if (!(wantShift === false && event.key === key && /[^a-z0-9]/i.test(key))) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 export function useHotkeys(
