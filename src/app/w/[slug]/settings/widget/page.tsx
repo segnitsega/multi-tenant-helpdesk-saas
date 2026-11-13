@@ -1,16 +1,54 @@
+import { notFound } from "next/navigation";
+import { getTenantContext } from "@/server/tenancy/context";
+import { assertCan } from "@/server/tenancy/permissions";
+import { ForbiddenError } from "@/lib/api-error";
+import { systemDb } from "@/server/db/system";
+import { getWidgetSettings } from "@/server/services/widget.service";
+import { effectivePlan } from "@/lib/effective-plan";
+import { planLimits } from "@/config/plans";
+import { WidgetSettingsForm } from "@/features/widget-settings/components/widget-settings-form";
 import { SettingsLayout } from "@/components/layout/settings-layout";
-import { EmptyState } from "@/components/empty-state";
+import { env } from "@/server/env";
 
-export default function WidgetSettingsPage() {
+export default async function WidgetSettingsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const ctx = await getTenantContext(slug);
+
+  try {
+    assertCan(ctx, "settings.manage");
+  } catch (e) {
+    if (e instanceof ForbiddenError) notFound();
+    throw e;
+  }
+
+  const workspace = await systemDb.orm.public.Workspace.where({
+    id: ctx.workspaceId,
+  }).first();
+  if (!workspace) notFound();
+
+  const settings = await getWidgetSettings(ctx.workspaceId);
+  const widgetEnabled = planLimits(effectivePlan(workspace)).widget;
+
   return (
     <SettingsLayout
       title="Widget"
       description="Embed snippet, appearance, and allowed origins."
     >
-      <EmptyState
-        title="Coming soon"
-        description="Widget configuration will be available here."
-        className="border-border rounded-lg border border-dashed py-16"
+      <WidgetSettingsForm
+        slug={slug}
+        widgetKey={workspace.widgetKey}
+        appUrl={env.APP_URL}
+        widgetEnabled={widgetEnabled}
+        initial={{
+          color: settings.color,
+          greeting: settings.greeting,
+          allowedOrigins: settings.allowedOrigins,
+          showPoweredBy: settings.showPoweredBy,
+        }}
       />
     </SettingsLayout>
   );
