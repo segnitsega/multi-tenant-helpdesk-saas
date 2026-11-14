@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Relay widget demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at top left, #dbeafe, transparent 40%),
+          linear-gradient(180deg, #f8fafc, #eef2ff);
+        color: #0f172a;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 64px 24px;
+      }
+      h1 {
+        font-size: 2.5rem;
+        letter-spacing: -0.04em;
+        margin: 0 0 12px;
+      }
+      p {
+        line-height: 1.6;
+        color: #334155;
+      }
+      code {
+        background: #e2e8f0;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .note {
+        margin-top: 24px;
+        padding: 16px;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.7);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Acme storefront</h1>
+      <p>
+        This is a sample host page for the Relay embeddable widget. Replace
+        <code>YOUR_WIDGET_KEY</code> with the workspace widget key from Settings
+        → Widget, then open the chat button.
+      </p>
+      <div class="note">
+        Tip: allow this origin in widget settings (or use <code>*</code> while
+        developing).
+      </div>
+    </main>
+    <script
+      src="/widget.js"
+      data-key="YOUR_WIDGET_KEY"
+      async
+    ></script>
+  </body>
+</html>
