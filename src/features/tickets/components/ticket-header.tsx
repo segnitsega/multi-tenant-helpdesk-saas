@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,6 +15,7 @@ import {
 import { SlaBadge } from "@/components/sla-badge";
 import { useUpdateTicket } from "@/features/tickets/hooks/use-update-ticket";
 import type { TicketDetail } from "@/features/tickets/types";
+import { cn } from "@/lib/utils";
 
 export function TicketHeader({
   slug,
@@ -27,6 +31,16 @@ export function TicketHeader({
   return (
     <div className="border-border space-y-3 border-b px-4 py-3">
       <div className="flex items-start gap-2">
+        <Link
+          href={`/w/${slug}/inbox`}
+          aria-label="Back to inbox"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon-sm" }),
+            "mt-1 shrink-0 md:hidden",
+          )}
+        >
+          <ArrowLeft className="size-4" />
+        </Link>
         <span className="text-muted-foreground mt-1.5 font-mono text-sm">
           #{ticket.number}
         </span>

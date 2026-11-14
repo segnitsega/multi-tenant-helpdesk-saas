@@ -26,7 +26,7 @@ export function ViewsPane({
   const active = (searchParams.get("view") as InboxViewId | null) ?? "open";
 
   return (
-    <aside className="border-border hidden w-48 shrink-0 flex-col border-r md:flex">
+    <aside className="border-border hidden w-48 shrink-0 flex-col border-r lg:flex">
       <div className="text-muted-foreground px-3 py-3 text-xs font-medium tracking-wide uppercase">
         Views
       </div>
