@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNowStrict } from "date-fns";
 import { StatusBadge, type TicketStatus } from "@/components/status-badge";
 import { PriorityBadge, type TicketPriority } from "@/components/priority-badge";
@@ -25,6 +26,8 @@ export function TicketRow({
   highlighted?: boolean;
   onToggle: (number: number, checked: boolean) => void;
 }) {
+  const router = useRouter();
+  const href = `/w/${slug}/inbox/${ticket.number}`;
   const name = ticket.customerName || ticket.customerEmail;
   const initials = name
     .split(/\s+/)
@@ -40,6 +43,9 @@ export function TicketRow({
         active && "bg-muted/60",
         highlighted && "bg-sky-50 dark:bg-sky-950/40",
       )}
+      onMouseEnter={() => {
+        router.prefetch(href);
+      }}
     >
       <Checkbox
         checked={selected}
@@ -47,10 +53,7 @@ export function TicketRow({
         aria-label={`Select ticket ${ticket.number}`}
         className="mt-1"
       />
-      <Link
-        href={`/w/${slug}/inbox/${ticket.number}`}
-        className="min-w-0 flex-1"
-      >
+      <Link href={href} className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
           <Avatar size="sm" className="mt-0.5">
             <AvatarFallback>{initials || "?"}</AvatarFallback>
