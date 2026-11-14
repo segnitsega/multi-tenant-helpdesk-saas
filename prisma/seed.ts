@@ -74,6 +74,24 @@ async function main() {
     }
   }
 
+  const viewer = await ensureUser("viewer@relay.local", "Demo Viewer");
+  const viewerMembership = await systemDb.orm.public.Membership.where({
+    workspaceId: workspace.id,
+    userId: viewer.id,
+  }).first();
+  if (!viewerMembership) {
+    await systemDb.orm.public.Membership.create({
+      workspaceId: workspace.id,
+      userId: viewer.id,
+      role: "AGENT",
+      readonly: true,
+    });
+  } else if (!viewerMembership.readonly) {
+    await systemDb.orm.public.Membership.where({
+      id: viewerMembership.id,
+    }).update({ readonly: true });
+  }
+
   const memberships = await systemDb.orm.public.Membership.where({
     workspaceId: workspace.id,
   }).all();
@@ -196,6 +214,11 @@ async function main() {
         login: {
           email: "demo@relay.local",
           password: "password123",
+        },
+        readonlyDemo: {
+          email: "viewer@relay.local",
+          password: "password123",
+          path: "/demo",
         },
         workspace: "demo",
         agents: agents.map((a) => a.email),
