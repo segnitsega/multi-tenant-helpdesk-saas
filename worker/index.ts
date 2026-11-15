@@ -14,6 +14,10 @@ import { processEmailOutbound } from "../src/server/jobs/processors/email-outbou
 import { processSlaScan } from "../src/server/jobs/processors/sla-scan";
 import { processAutomation } from "../src/server/jobs/processors/automation";
 import { processCleanup } from "../src/server/jobs/processors/cleanup";
+import {
+  captureException,
+  initSentry,
+} from "../src/server/observability/sentry";
 
 const workers: Worker[] = [];
 
@@ -43,6 +47,7 @@ function startWorker<T>(
 
   worker.on("failed", (job, error) => {
     console.error(`[worker:${name}] job failed`, job?.id, error);
+    captureException(error, { queue: name, jobId: job?.id });
   });
   worker.on("completed", (job) => {
     console.info(`[worker:${name}] job completed`, job.id);
@@ -53,6 +58,7 @@ function startWorker<T>(
 }
 
 async function main() {
+  initSentry("worker");
   await registerSchedulers();
 
   startWorker<EmailInboundJob>(
