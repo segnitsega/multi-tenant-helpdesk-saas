@@ -1,0 +1,15 @@
+app = "relay-helpdesk-worker"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile.worker"
+
+[env]
+  NODE_ENV = "production"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
+[processes]
+  worker = "pnpm start:worker"
