@@ -72,7 +72,7 @@ export async function enqueueEmailInbound(
   await emailInboundQueue.add(
     "process",
     { inboundEmailId },
-    { jobId: `inbound:${providerMessageId}` },
+    { jobId: `inbound-${providerMessageId}` },
   );
 }
 
@@ -83,7 +83,7 @@ export async function enqueueEmailOutbound(
   await emailOutboundQueue.add(
     "send",
     { workspaceId, messageId },
-    { jobId: `outbound:${messageId}` },
+    { jobId: `outbound-${messageId}` },
   );
 }
 
@@ -92,7 +92,7 @@ export async function enqueueSlaScan(workspaceId?: string) {
     "scan",
     { workspaceId },
     {
-      jobId: workspaceId ? `sla:${workspaceId}:${Date.now()}` : undefined,
+      jobId: workspaceId ? `sla-${workspaceId}-${Date.now()}` : undefined,
     },
   );
 }
@@ -100,7 +100,7 @@ export async function enqueueSlaScan(workspaceId?: string) {
 export async function enqueueAutomation(input: AutomationJob) {
   if (input.origin === "automation") return;
   await automationQueue.add("run", input, {
-    jobId: `auto:${input.ticketId}:${input.trigger}:${Date.now()}`,
+    jobId: `auto-${input.ticketId}-${input.trigger}-${Date.now()}`,
   });
 }
 
@@ -108,6 +108,6 @@ export async function enqueueCleanup(olderThanDays = 30) {
   await cleanupQueue.add(
     "run",
     { olderThanDays },
-    { jobId: `cleanup:${olderThanDays}:${Date.now()}` },
+    { jobId: `cleanup-${olderThanDays}-${Date.now()}` },
   );
 }
