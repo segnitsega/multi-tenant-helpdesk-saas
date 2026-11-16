@@ -9,6 +9,10 @@ import { cn } from "@/lib/utils";
 
 type SlaTone = "ok" | "warning" | "breached";
 
+function toMs(value: Date | string) {
+  return (typeof value === "string" ? new Date(value) : value).getTime();
+}
+
 function formatSlaLabel(dueAt: Date, now: Date, tone: SlaTone): string {
   const distance = formatDistanceStrict(dueAt, now, {
     roundingMethod: "floor",
@@ -36,31 +40,37 @@ export function SlaBadge({
   dueAt: Date | string;
   className?: string;
 }) {
-  const start = typeof startsAt === "string" ? new Date(startsAt) : startsAt;
-  const due = typeof dueAt === "string" ? new Date(dueAt) : dueAt;
+  const startMs = toMs(startsAt);
+  const dueMs = toMs(dueAt);
+  const start = new Date(startMs);
+  const due = new Date(dueMs);
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
-    const tick = () => {
-      const remaining = remainingMs(due, new Date());
+    let timer: number;
+    let cancelled = false;
+
+    const schedule = () => {
+      const remaining = remainingMs(new Date(dueMs), new Date());
       const intervalMs =
         remaining != null && remaining > 0 && remaining < 120_000
           ? 1_000
           : 60_000;
-      setNow(new Date());
-      return intervalMs;
+      timer = window.setTimeout(() => {
+        if (cancelled) return;
+        setNow(new Date());
+        schedule();
+      }, intervalMs);
     };
 
-    let timer: number;
-    const schedule = () => {
-      const intervalMs = tick();
-      timer = window.setTimeout(schedule, intervalMs);
-    };
     schedule();
-    return () => window.clearTimeout(timer);
-  }, [due]);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [dueMs]);
 
-  const totalMs = due.getTime() - start.getTime();
+  const totalMs = dueMs - startMs;
   const tone = slaState(due, now, totalMs);
   const label = formatSlaLabel(due, now, tone);
 

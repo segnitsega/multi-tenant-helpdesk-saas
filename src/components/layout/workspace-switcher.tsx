@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -69,27 +70,31 @@ export function WorkspaceSwitcher({
         className="w-56"
         sideOffset={8}
       >
-        <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
-        {workspaces.map((workspace) => (
-          <DropdownMenuItem
-            key={workspace.workspaceId}
-            render={<Link href={`/w/${workspace.slug}/inbox`} />}
-            className="gap-2"
-          >
-            <span className="bg-muted flex size-5 items-center justify-center rounded text-[10px] font-semibold">
-              {workspace.name.slice(0, 1).toUpperCase()}
-            </span>
-            <span className="min-w-0 flex-1 truncate">{workspace.name}</span>
-            {workspace.slug === currentSlug ? (
-              <Check className="size-3.5" />
-            ) : null}
-          </DropdownMenuItem>
-        ))}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+          {workspaces.map((workspace) => (
+            <DropdownMenuItem
+              key={workspace.workspaceId}
+              render={<Link href={`/w/${workspace.slug}/inbox`} />}
+              className="gap-2"
+            >
+              <span className="bg-muted flex size-5 items-center justify-center rounded text-[10px] font-semibold">
+                {workspace.name.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="min-w-0 flex-1 truncate">{workspace.name}</span>
+              {workspace.slug === currentSlug ? (
+                <Check className="size-3.5" />
+              ) : null}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/onboarding?new=1" />}>
-          <Plus className="size-4" />
-          Create workspace
-        </DropdownMenuItem>
+        <DropdownMenuGroup>
+          <DropdownMenuItem render={<Link href="/onboarding?new=1" />}>
+            <Plus className="size-4" />
+            Create workspace
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,8 +1,10 @@
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import { signIn } from "@/server/auth/auth";
 
-export default async function DemoPage() {
+export async function GET(request: Request) {
+  const origin = new URL(request.url).origin;
+
   try {
     await signIn("credentials", {
       email: "viewer@relay.local",
@@ -11,10 +13,10 @@ export default async function DemoPage() {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      redirect("/login?demo=unavailable");
+      return NextResponse.redirect(new URL("/login?demo=unavailable", origin));
     }
     throw error;
   }
 
-  redirect("/w/demo/inbox");
+  return NextResponse.redirect(new URL("/w/demo/inbox", origin));
 }

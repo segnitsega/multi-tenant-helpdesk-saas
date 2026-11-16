@@ -1,5 +1,11 @@
 import "server-only";
 import { env } from "@/server/env";
+import {
+  emailButton,
+  emailMuted,
+  emailParagraph,
+  renderEmailLayout,
+} from "@/server/email/templates/layout";
 
 export function magicLinkEmail(input: {
   workspaceName: string;
@@ -16,15 +22,25 @@ export function magicLinkEmail(input: {
     "This link expires in 15 minutes and can only be used once.",
   ].join("\n");
 
-  const html = `
-    <p>Sign in to <strong>${input.workspaceName}</strong> support portal.</p>
-    <p><a href="${url}">Open your tickets</a></p>
-    <p>This link expires in 15 minutes and can only be used once.</p>
-  `.trim();
+  const bodyHtml = [
+    emailParagraph(
+      `Use the secure link below to open your tickets with <strong>${input.workspaceName}</strong>.`,
+    ),
+    emailButton(url, "Open your tickets"),
+    emailMuted(
+      "This link expires in 15 minutes and can only be used once.",
+    ),
+  ].join("");
 
   return {
     subject: `Your ${input.workspaceName} support link`,
     text,
-    html,
+    html: renderEmailLayout({
+      title: `Sign in to ${input.workspaceName}`,
+      preheader: `Your one-time support portal link`,
+      bodyHtml,
+      workspaceName: input.workspaceName,
+      footerNote: "This magic link was requested from the customer portal.",
+    }),
   };
 }

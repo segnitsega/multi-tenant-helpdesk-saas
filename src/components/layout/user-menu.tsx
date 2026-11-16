@@ -9,6 +9,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -58,38 +59,44 @@ export function UserMenu({
           ) : null}
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" side="top" className="w-56" sideOffset={8}>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col gap-0.5">
-              <span className="text-foreground text-sm font-medium">
-                {user.name ?? "Account"}
-              </span>
-              {user.email ? (
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col gap-0.5">
+                <span className="text-foreground text-sm font-medium">
+                  {user.name ?? "Account"}
                 </span>
-              ) : null}
-            </div>
-          </DropdownMenuLabel>
+                {user.email ? (
+                  <span className="text-muted-foreground truncate text-xs">
+                    {user.email}
+                  </span>
+                ) : null}
+              </div>
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem disabled>
-            <UserRound className="size-4" />
-            Profile
-          </DropdownMenuItem>
-          {collapsed ? (
-            <div className="px-1.5 py-1">
-              <ThemeToggle />
-            </div>
-          ) : null}
+          <DropdownMenuGroup>
+            <DropdownMenuItem disabled>
+              <UserRound className="size-4" />
+              Profile
+            </DropdownMenuItem>
+            {collapsed ? (
+              <div className="px-1.5 py-1">
+                <ThemeToggle />
+              </div>
+            ) : null}
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => {
-              void logout();
-            }}
-          >
-            <LogOut className="size-4" />
-            Sign out
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={() => {
+                void logout();
+              }}
+            >
+              <LogOut className="size-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

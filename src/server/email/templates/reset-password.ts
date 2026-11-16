@@ -1,5 +1,11 @@
 import "server-only";
 import { env } from "@/server/env";
+import {
+  emailButton,
+  emailMuted,
+  emailParagraph,
+  renderEmailLayout,
+} from "@/server/email/templates/layout";
 
 export function resetPasswordEmail(input: {
   name: string | null;
@@ -18,16 +24,23 @@ export function resetPasswordEmail(input: {
     "If you did not request this, you can ignore this email.",
   ].join("\n");
 
-  const html = `
-    <p>${greeting}</p>
-    <p>We received a request to reset your Relay password.</p>
-    <p><a href="${resetUrl}">Choose a new password</a> (expires in 1 hour).</p>
-    <p>If you did not request this, you can ignore this email.</p>
-  `.trim();
+  const bodyHtml = [
+    emailParagraph(greeting),
+    emailParagraph("We received a request to reset your Relay password."),
+    emailButton(resetUrl, "Choose a new password"),
+    emailMuted(
+      "This link expires in 1 hour. If you did not request a reset, you can safely ignore this email.",
+    ),
+  ].join("");
 
   return {
     subject: "Reset your Relay password",
     text,
-    html,
+    html: renderEmailLayout({
+      title: "Reset your password",
+      preheader: "Choose a new password for your Relay account",
+      bodyHtml,
+      footerNote: "Password resets are only valid for one hour.",
+    }),
   };
 }

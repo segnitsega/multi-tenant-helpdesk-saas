@@ -5,6 +5,10 @@ import { withTenantDb } from "@/server/db";
 import { getEmailProvider } from "@/server/email";
 import { env } from "@/server/env";
 import {
+  emailMuted,
+  renderEmailLayout,
+} from "@/server/email/templates/layout";
+import {
   buildReplyToAddress,
   buildSupportFromAddress,
   normalizeMessageId,
@@ -86,6 +90,19 @@ export async function processEmailOutbound(
     headers.References = referenceIds.join(" ");
   }
 
+  const html = renderEmailLayout({
+    title: ticket.subject,
+    preheader: message.bodyText.slice(0, 120),
+    workspaceName: workspace.name,
+    bodyHtml: [
+      `<div style="margin:0 0 16px;">${message.bodyHtml}</div>`,
+      emailMuted(
+        `Ticket #${ticket.number} · Reply to this email to continue the conversation.`,
+      ),
+    ].join(""),
+    footerNote: `${workspace.name} sent this reply through Relay.`,
+  });
+
   try {
     const provider = getEmailProvider();
     const result = await provider.sendEmail({
@@ -93,7 +110,7 @@ export async function processEmailOutbound(
       subject: ticket.subject.startsWith("Re:")
         ? ticket.subject
         : `Re: ${ticket.subject}`,
-      html: message.bodyHtml,
+      html,
       text: message.bodyText,
       from: buildSupportFromAddress(
         env.MAIL_FROM_NAME,

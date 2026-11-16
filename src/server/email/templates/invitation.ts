@@ -1,5 +1,11 @@
 import "server-only";
 import { env } from "@/server/env";
+import {
+  emailButton,
+  emailMuted,
+  emailParagraph,
+  renderEmailLayout,
+} from "@/server/email/templates/layout";
 
 export function invitationEmail(input: {
   workspaceName: string;
@@ -18,15 +24,26 @@ export function invitationEmail(input: {
     "This link expires in 7 days.",
   ].join("\n");
 
-  const html = `
-    <p>${who} invited you to join <strong>${input.workspaceName}</strong> on Relay as <strong>${input.role}</strong>.</p>
-    <p><a href="${url}">Accept the invitation</a></p>
-    <p>This link expires in 7 days.</p>
-  `.trim();
+  const bodyHtml = [
+    emailParagraph(
+      `${who} invited you to join <strong>${input.workspaceName}</strong> on Relay as <strong>${input.role}</strong>.`,
+    ),
+    emailParagraph(
+      "Accept the invite to start triaging tickets with your team.",
+    ),
+    emailButton(url, "Accept invitation"),
+    emailMuted("This link expires in 7 days. If you were not expecting this invite, you can ignore the email."),
+  ].join("");
 
   return {
     subject: `Join ${input.workspaceName} on Relay`,
     text,
-    html,
+    html: renderEmailLayout({
+      title: `You're invited to ${input.workspaceName}`,
+      preheader: `${who} invited you to Relay`,
+      bodyHtml,
+      workspaceName: input.workspaceName,
+      footerNote: "This invitation was sent from a Relay workspace.",
+    }),
   };
 }
