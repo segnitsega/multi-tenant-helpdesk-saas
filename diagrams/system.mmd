@@ -1,0 +1,18 @@
+flowchart LR
+  Browser[Agent browser] --> Web[Next.js web x2]
+  Customer[Customer] --> Email[Postmark inbound]
+  Customer --> Widget[Embeddable widget]
+  Widget --> Web
+  Email --> Web
+  Web --> Postgres[(Postgres + RLS)]
+  Web --> Redis[(Redis)]
+  Web --> S3[(S3 / R2)]
+  Web --> Stripe[Stripe]
+  Redis --> Web
+  Redis --> Worker[BullMQ worker]
+  Worker --> Postgres
+  Worker --> Redis
+  Worker --> PostmarkOut[Postmark / SMTP]
+  Worker --> S3
+  Web --> Sentry[Sentry]
+  Worker --> Sentry

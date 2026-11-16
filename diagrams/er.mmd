@@ -1,0 +1,35 @@
+erDiagram
+  User ||--o{ Membership : has
+  Workspace ||--o{ Membership : has
+  Workspace ||--o{ Ticket : owns
+  Workspace ||--o{ Customer : owns
+  Customer ||--o{ Ticket : opens
+  Ticket ||--o{ Message : contains
+  Ticket }o--o| Membership : assigned
+  Workspace ||--o{ CannedReply : owns
+  Workspace ||--o{ AutomationRule : owns
+  Workspace ||--o{ Invitation : invites
+  User {
+    uuid id
+    string email
+    string name
+  }
+  Workspace {
+    uuid id
+    string slug
+    string plan
+  }
+  Membership {
+    uuid id
+    string role
+    boolean readonly
+  }
+  Ticket {
+    int number
+    string status
+    string priority
+  }
+  Message {
+    uuid id
+    string kind
+  }
