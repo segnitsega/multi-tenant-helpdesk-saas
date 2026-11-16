@@ -126,7 +126,7 @@ function DeliveryStatus({
       >
         {label}
       </span>
-      {status === "FAILED" ? (
+      {status === "FAILED" || status === "QUEUED" ? (
         <Button
           type="button"
           size="xs"
@@ -141,12 +141,14 @@ function DeliveryStatus({
                 toast.error(result.error.message);
                 return;
               }
-              toast.success("Retry queued");
+              toast.success(
+                status === "QUEUED" ? "Send re-queued" : "Retry queued",
+              );
               router.refresh();
             });
           }}
         >
-          Retry
+          {status === "QUEUED" ? "Retry send" : "Retry"}
         </Button>
       ) : null}
     </div>

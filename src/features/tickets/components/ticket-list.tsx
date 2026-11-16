@@ -106,7 +106,7 @@ export function TicketList({
   }
 
   return (
-    <section className="border-border flex w-full min-w-0 flex-col border-r md:max-w-md md:min-w-[20rem]">
+    <section className="border-border flex w-full min-w-0 flex-col border-r md:max-w-sm md:min-w-[18rem] xl:max-w-md">
       <TicketFiltersBar onOpenNew={() => setNewOpen(true)} />
       <BulkActionBar
         count={selected.length}

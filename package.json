@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "dev:worker": "tsx watch --env-file=.env.local --env-file=.env -r ./worker/register.cjs worker/index.ts",
+    "dev:worker": "tsx watch --env-file=.env.local --env-file=.env --import ./scripts/register-server-only.mjs worker/index.ts",
     "build": "next build",
     "start": "next start",
-    "start:worker": "tsx --env-file=.env.local --env-file=.env -r ./worker/register.cjs worker/index.ts",
+    "start:worker": "tsx --env-file=.env.local --env-file=.env --import ./scripts/register-server-only.mjs worker/index.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "test": "vitest run",

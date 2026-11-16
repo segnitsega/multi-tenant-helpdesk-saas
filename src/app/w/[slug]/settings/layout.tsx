@@ -12,7 +12,7 @@ export default async function WorkspaceSettingsLayout({
   await getTenantContext(slug);
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 lg:flex-row lg:gap-10">
+    <div className="flex w-full max-w-5xl flex-col px-4 py-6 lg:flex-row">
       <SettingsNav slug={slug} />
       <div className="min-w-0 flex-1">{children}</div>
     </div>
