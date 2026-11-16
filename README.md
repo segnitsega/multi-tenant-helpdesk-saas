@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Relay
 
-## Getting Started
+Multi-tenant shared inbox for support teams — keyboard-first triage, email + widget channels, SLA/automations, Stripe billing, and Postgres RLS isolation.
 
-First, run the development server:
+**Live demo:** [/demo](/demo) (read-only viewer) · **Loom:** _add recording URL_ · **Docs:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (local)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+![CI](https://github.com/segnitsega/multi-tenant-helpdesk-saas/actions/workflows/ci.yml/badge.svg)
+
+## Screenshots
+
+Add inbox, command palette, analytics, dark mode, and widget captures under `public/images/` when recording the walkthrough.
+
+## Problem and audience
+
+Support tools either overshare data between customers or bury agents in mouse-driven UIs. Relay is for B2B product teams that need one workspace per customer org, fast keyboard triage, and credible email/billing primitives they can demo to clients.
+
+## Features
+
+- Shared inbox with filters, bulk actions, and SSE live updates
+- TipTap composer, canned replies, attachments (S3/MinIO)
+- Inbound/outbound email with Message-ID threading
+- SLA timers, automations, analytics CSV export
+- Stripe Free / Pro / Business limits
+- Customer portal + embeddable widget
+- Read-only demo login for portfolio walkthroughs
+
+## Architecture
+
+```mermaid
+flowchart LR
+  Browser[Agent browser] --> Web[Next.js web]
+  Customer[Customer] --> Email[Postmark inbound]
+  Customer --> Widget[Widget]
+  Widget --> Web
+  Email --> Web
+  Web --> Postgres[(Postgres + RLS)]
+  Web --> Redis[(Redis)]
+  Web --> S3[(S3 / R2)]
+  Redis --> Worker[BullMQ worker]
+  Worker --> PostmarkOut[Outbound email]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Source diagrams: [`diagrams/system.mmd`](diagrams/system.mmd), [`diagrams/er.mmd`](diagrams/er.mmd).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Stack:** Next.js App Router, Auth.js, Prisma 8, Postgres RLS, Redis/BullMQ, TipTap, Stripe, Postmark/SMTP, S3, Playwright/Vitest.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key decisions
 
-## Learn More
+| Decision | Trade-off |
+|---|---|
+| Postgres RLS per workspace | Strong isolation; requires careful `systemDb` vs tenant DB usage |
+| SSE + Redis fan-out | Simple horizontal scale; needs sticky-enough long-lived connections (avoid serverless web) |
+| Idempotent Stripe/Postmark webhooks | Safe retries; more bookkeeping |
+| Email threading via Message-ID / References | Works with real mail clients; edge cases still exist |
 
-To learn more about Next.js, take a look at the following resources:
+## Local setup (< 10 minutes)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm install
+cp .env.example .env.local   # fill Neon/local Postgres + secrets
+docker compose up -d redis mailpit minio
+# apply schema / RLS SQL for your environment, then:
+pnpm db:seed
+pnpm dev                     # web
+pnpm dev:worker              # jobs (separate terminal)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open http://localhost:3000 — use the seeded credentials below (or `/demo` for read-only).
 
-## Deploy on Vercel
+Health: `GET /api/health` · Ready: `GET /api/ready`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Seeded demo credentials
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Role | Email | Password | Notes |
+|---|---|---|---|
+| Owner | `demo@relay.local` | `password123` | Full access to workspace `demo` |
+| Agent | `sam@relay.local` | `password123` | Agent |
+| Agent | `riley@relay.local` | `password123` | Agent |
+| Agent | `jordan@relay.local` | `password123` | Agent |
+| Read-only viewer | `viewer@relay.local` | `password123` | Or open `/demo` |
+| Sample customers | `customer1@example.com` … `customer30@example.com` | — | Ticket requesters only |
+
+Workspace slug: **`demo`** · Plan after seed: **PRO**
+
+Seed creates ~100 demo tickets across 45 days. Reset demo tickets: `pnpm db:reset-demo && pnpm db:seed`
+
+## Testing and CI
+
+```bash
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm test:e2e
+bash scripts/check-secrets.sh
+```
+
+GitHub Actions runs install → secret scan → typecheck → lint → tests → build on every PR; e2e/deploy hooks are stubbed for `main`.
+
+## Deploy
+
+- `Dockerfile` (web, `output: "standalone"`) + `Dockerfile.worker`
+- `fly.toml` / `fly.worker.toml` — run `prisma migrate deploy` as a **release command**, not at container boot
+- Set all vars from `.env.example`; point Stripe/Postmark webhooks at production URLs
+
+## Roadmap
+
+Public REST API + webhooks, knowledge base, CSAT, business-hours SLAs, custom email domains, 2FA.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

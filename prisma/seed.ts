@@ -116,7 +116,7 @@ async function main() {
   }).all();
 
   const HISTORY_DAYS = 45;
-  const TARGET = 220;
+  const TARGET = 100;
 
   if (existingTickets.length < TARGET) {
     const toCreate = TARGET - existingTickets.length;
@@ -236,6 +236,6 @@ main()
     console.error(error);
     process.exitCode = 1;
   })
-  .finally(async () => {
-    await systemDb.close();
+  .finally(() => {
+    void systemDb.close().finally(() => process.exit(process.exitCode ?? 0));
   });
