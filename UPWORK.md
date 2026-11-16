@@ -1,0 +1,3 @@
+# Upwork project summary
+
+Relay is a multi-tenant helpdesk SaaS for teams that need a shared inbox without leaking data across customers. I built workspace isolation with Postgres RLS, real-time inbox updates over SSE and Redis, inbound/outbound email threading, Stripe billing with plan limits, analytics, and an embeddable widget plus customer portal. The stack is Next.js, Auth.js, Prisma, BullMQ, Postmark, and S3-compatible storage, packaged with Docker and health checks for a long-lived web + worker deploy. A seeded demo workspace and read-only viewer login make it easy to evaluate the product end to end.
