@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { cn } from "@/lib/utils";
 
 export function MarketingHeader() {
@@ -24,6 +25,7 @@ export function MarketingHeader() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
           <Link
             href="/login"
             className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
