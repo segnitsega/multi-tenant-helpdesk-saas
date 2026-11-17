@@ -13,7 +13,7 @@ export function ForgotPasswordForm() {
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <form
         method="post"
         className="space-y-4"
@@ -42,25 +42,36 @@ export function ForgotPasswordForm() {
             autoComplete="email"
             required
             disabled={pending}
+            placeholder="you@company.com"
+            className="h-10"
           />
         </Field>
         {error ? (
-          <p className="text-destructive text-sm" role="alert">
+          <p
+            className="border-destructive/20 bg-destructive/5 text-destructive rounded-lg border px-3 py-2 text-sm"
+            role="alert"
+          >
             {error}
           </p>
         ) : null}
         {message ? (
-          <p className="text-foreground text-sm" role="status">
+          <p
+            className="border-border bg-muted/40 text-foreground rounded-lg border px-3 py-2 text-sm"
+            role="status"
+          >
             {message}
           </p>
         ) : null}
-        <Button type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" size="lg" className="w-full" disabled={pending}>
           {pending ? "Sending…" : "Send reset link"}
         </Button>
       </form>
 
       <p className="text-muted-foreground text-center text-sm">
-        <Link href="/login" className="text-primary hover:underline">
+        <Link
+          href="/login"
+          className="text-foreground font-medium underline-offset-4 hover:underline"
+        >
           Back to sign in
         </Link>
       </p>

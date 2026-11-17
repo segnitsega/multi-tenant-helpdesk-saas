@@ -7,7 +7,10 @@ export default async function LoginPage() {
   await redirectIfAuthenticated();
 
   return (
-    <AuthShell title="Sign in" description="Access your Relay workspaces.">
+    <AuthShell
+      title="Welcome back"
+      description="Sign in to continue to your Relay workspaces."
+    >
       <LoginForm
         googleEnabled={Boolean(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET)}
       />

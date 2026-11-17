@@ -16,7 +16,7 @@ export default async function SignupPage({
   return (
     <AuthShell
       title="Create your account"
-      description="Start with Relay in a minute."
+      description="Set up Relay for your team — invite agents when you’re ready."
     >
       <SignupForm
         googleEnabled={Boolean(env.AUTH_GOOGLE_ID && env.AUTH_GOOGLE_SECRET)}

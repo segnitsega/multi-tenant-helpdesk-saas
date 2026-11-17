@@ -7,8 +7,8 @@ export default async function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Forgot password"
-      description="We’ll email you a reset link if that account exists."
+      title="Reset your password"
+      description="Enter your email and we’ll send a reset link if an account exists."
     >
       <ForgotPasswordForm />
     </AuthShell>

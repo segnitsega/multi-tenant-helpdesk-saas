@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { loginWithGoogle, signUp } from "@/features/auth/actions";
+import { signUp } from "@/features/auth/actions";
+import { AuthDivider } from "./auth-divider";
 import { Field } from "./field";
+import { GoogleButton } from "./google-button";
 
 export function SignupForm({
   googleEnabled,
@@ -19,24 +21,12 @@ export function SignupForm({
   const [pending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {googleEnabled ? (
-        <>
-          <form action={loginWithGoogle}>
-            <Button
-              type="submit"
-              variant="outline"
-              className="w-full"
-              disabled={pending}
-            >
-              Continue with Google
-            </Button>
-          </form>
-          <div className="text-muted-foreground relative py-1 text-center text-xs">
-            <span className="bg-card relative z-10 px-2">or</span>
-            <div className="border-border absolute inset-x-0 top-1/2 border-t" />
-          </div>
-        </>
+        <div className="space-y-4">
+          <GoogleButton disabled={pending} />
+          <AuthDivider />
+        </div>
       ) : null}
 
       <form
@@ -67,10 +57,12 @@ export function SignupForm({
             autoComplete="name"
             required
             disabled={pending}
+            placeholder="Jordan Lee"
             aria-invalid={!!fieldErrors.name}
+            className="h-10"
           />
         </Field>
-        <Field label="Email" htmlFor="email" error={fieldErrors.email?.[0]}>
+        <Field label="Work email" htmlFor="email" error={fieldErrors.email?.[0]}>
           <Input
             id="email"
             name="email"
@@ -79,7 +71,9 @@ export function SignupForm({
             required
             defaultValue={defaultEmail}
             disabled={pending || !!defaultEmail}
+            placeholder="you@company.com"
             aria-invalid={!!fieldErrors.email}
+            className="h-10"
           />
         </Field>
         <Field
@@ -96,24 +90,36 @@ export function SignupForm({
             minLength={8}
             disabled={pending}
             aria-invalid={!!fieldErrors.password}
+            className="h-10"
           />
           <p className="text-muted-foreground text-xs">
-            At least 8 characters.
+            Use at least 8 characters.
           </p>
         </Field>
         {error ? (
-          <p className="text-destructive text-sm" role="alert">
+          <p
+            className="border-destructive/20 bg-destructive/5 text-destructive rounded-lg border px-3 py-2 text-sm"
+            role="alert"
+          >
             {error}
           </p>
         ) : null}
-        <Button type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" size="lg" className="w-full" disabled={pending}>
           {pending ? "Creating account…" : "Create account"}
         </Button>
       </form>
 
+      <p className="text-muted-foreground text-center text-xs leading-relaxed">
+        By continuing you agree to use Relay for your team&apos;s support
+        workspace.
+      </p>
+
       <p className="text-muted-foreground text-center text-sm">
         Already have an account?{" "}
-        <Link href="/login" className="text-primary hover:underline">
+        <Link
+          href="/login"
+          className="text-foreground font-medium underline-offset-4 hover:underline"
+        >
           Sign in
         </Link>
       </p>

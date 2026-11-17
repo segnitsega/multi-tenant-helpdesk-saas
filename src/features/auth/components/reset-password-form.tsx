@@ -31,7 +31,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <form
         className="space-y-4"
         onSubmit={(event) => {
@@ -65,14 +65,21 @@ export function ResetPasswordForm({ token }: { token: string }) {
             minLength={8}
             disabled={pending}
             aria-invalid={!!fieldErrors.password}
+            className="h-10"
           />
+          <p className="text-muted-foreground text-xs">
+            Use at least 8 characters.
+          </p>
         </Field>
         {error ? (
-          <p className="text-destructive text-sm" role="alert">
+          <p
+            className="border-destructive/20 bg-destructive/5 text-destructive rounded-lg border px-3 py-2 text-sm"
+            role="alert"
+          >
             {error}
           </p>
         ) : null}
-        <Button type="submit" className="w-full" disabled={pending}>
+        <Button type="submit" size="lg" className="w-full" disabled={pending}>
           {pending ? "Updating…" : "Update password"}
         </Button>
       </form>
