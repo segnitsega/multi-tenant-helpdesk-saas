@@ -21,11 +21,19 @@ async function main() {
     await systemDb.orm.public.Ticket.where({ id: ticket.id }).delete();
   }
 
+  const inbound = await systemDb.orm.public.InboundEmail.where({
+    workspaceId: workspace.id,
+  }).all();
+  for (const row of inbound) {
+    await systemDb.orm.public.InboundEmail.where({ id: row.id }).delete();
+  }
+
   console.log(
     JSON.stringify(
       {
         workspace: workspace.slug,
         deletedTickets: tickets.length,
+        deletedInboundEmails: inbound.length,
         next: "pnpm db:seed",
       },
       null,

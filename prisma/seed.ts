@@ -10,6 +10,7 @@ import {
   updateTicket,
 } from "../src/server/services/ticket.service";
 import { addNote, addReply } from "../src/server/services/message.service";
+import { seedEmailShowcase } from "./seed-email-showcase";
 import type { TenantContext } from "../src/types/tenant";
 
 const STATUSES = ["OPEN", "PENDING", "ON_HOLD", "RESOLVED", "CLOSED"] as const;
@@ -141,15 +142,44 @@ async function main() {
           ? new Date(createdAt.getTime() + ((n % 11) + 2) * 60 * 60_000)
           : null;
 
+      const channel =
+        n % 3 === 0 ? "WIDGET" : n % 2 === 0 ? "EMAIL" : ("MANUAL" as const);
+      const emailSubjects = [
+        "Order never arrived",
+        "Invoice PDF missing",
+        "Update billing email",
+        "Cancel renewal",
+        "Wrong item shipped",
+      ] as const;
+      const subject =
+        channel === "EMAIL"
+          ? `${emailSubjects[n % emailSubjects.length]} (#${1000 + n})`
+          : `Seed ticket ${n}: ${priority.toLowerCase()} issue`;
+
       const ticket = await createTicket(ctx, {
-        subject: `Seed ticket ${n}: ${priority.toLowerCase()} issue`,
-        bodyHtml: `<p>Customer message for ticket ${n}. Need help with order #${1000 + n}.</p>`,
+        subject,
+        bodyHtml:
+          channel === "EMAIL"
+            ? `<p>Hello support,</p><p>I’m writing about order <strong>#${1000 + n}</strong>. ${emailSubjects[n % emailSubjects.length]} — please advise.</p><p>Thanks,<br/>Customer ${(n % 30) + 1}</p>`
+            : `<p>Customer message for ticket ${n}. Need help with order #${1000 + n}.</p>`,
         customerEmail: `customer${(n % 30) + 1}@example.com`,
         customerName: `Customer ${(n % 30) + 1}`,
         priority,
-        channel: n % 3 === 0 ? "WIDGET" : n % 2 === 0 ? "EMAIL" : "MANUAL",
+        channel,
         assigneeMembershipId: assignee,
       });
+
+      if (channel === "EMAIL") {
+        const messages = await systemDb.orm.public.Message.where({
+          ticketId: ticket.id,
+        }).all();
+        const first = messages[0];
+        if (first) {
+          await systemDb.orm.public.Message.where({ id: first.id }).update({
+            emailMessageId: `<cust.seed.${n}@${process.env.MAIL_DOMAIN ?? "mail.localhost"}>`,
+          });
+        }
+      }
 
       if (n % 3 === 0) {
         await addNote(ctx, {
@@ -208,6 +238,15 @@ async function main() {
     }
   }
 
+  const emailShowcase = await seedEmailShowcase(ctx, {
+    workspaceId: workspace.id,
+    inboundAddress:
+      workspace.inboundAddress ?? `demo@${process.env.MAIL_DOMAIN ?? "mail.localhost"}`,
+    agentMembershipIds: memberships
+      .filter((m) => m.userId !== owner.id && !m.readonly)
+      .map((m) => m.id),
+  });
+
   console.log(
     JSON.stringify(
       {
@@ -224,6 +263,12 @@ async function main() {
         agents: agents.map((a) => a.email),
         ticketTarget: TARGET,
         historyDays: HISTORY_DAYS,
+        emailShowcase,
+        emailLocal: {
+          inboundAddress: workspace.inboundAddress,
+          simulateInbound: "pnpm dev:inbound new-thread",
+          mailpit: "http://localhost:8025",
+        },
       },
       null,
       2,

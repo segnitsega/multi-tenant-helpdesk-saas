@@ -105,6 +105,25 @@ export async function processEmailOutbound(
 
   try {
     const provider = getEmailProvider();
+    const inboundLocal = workspace.inboundAddress.split("@")[0] ?? "";
+    // Custom domain: demo+t123@mail.example.com. Postmark's default hash inbox
+    // has no plus-addressing — use the workspace inbound address as Reply-To.
+    const replyTo =
+      inboundLocal === workspace.slug
+        ? buildReplyToAddress(
+            workspace.slug,
+            ticket.number,
+            env.MAIL_DOMAIN,
+          )
+        : workspace.inboundAddress;
+    const from = env.MAIL_FROM_EMAIL
+      ? `${env.MAIL_FROM_NAME} <${env.MAIL_FROM_EMAIL}>`
+      : buildSupportFromAddress(
+          env.MAIL_FROM_NAME,
+          workspace.slug,
+          env.MAIL_DOMAIN,
+        );
+
     const result = await provider.sendEmail({
       to: customer.email,
       subject: ticket.subject.startsWith("Re:")
@@ -112,16 +131,8 @@ export async function processEmailOutbound(
         : `Re: ${ticket.subject}`,
       html,
       text: message.bodyText,
-      from: buildSupportFromAddress(
-        env.MAIL_FROM_NAME,
-        workspace.slug,
-        env.MAIL_DOMAIN,
-      ),
-      replyTo: buildReplyToAddress(
-        workspace.slug,
-        ticket.number,
-        env.MAIL_DOMAIN,
-      ),
+      from,
+      replyTo,
       headers,
       messageId: outboundMessageId,
     });

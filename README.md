@@ -82,7 +82,20 @@ Health: `GET /api/health` · Ready: `GET /api/ready`
 
 Workspace slug: **`demo`** · Plan after seed: **PRO**
 
-Seed creates ~100 demo tickets across 45 days. Reset demo tickets: `pnpm db:reset-demo && pnpm db:seed`
+Seed creates ~100 demo tickets across 45 days, plus **email showcase** threads (multi-message EMAIL tickets with `Message-ID` / delivery status), canned replies, sample automations, and Settings → Email inbound rows (including one failed row for Replay). Reset demo tickets: `pnpm db:reset-demo && pnpm db:seed`
+
+### Email locally (no Postmark required)
+
+```bash
+docker compose up -d redis mailpit minio
+pnpm dev          # web
+pnpm dev:worker   # processes inbound + outbound jobs
+pnpm dev:inbound new-thread   # fakes Postmark → creates a ticket for demo@MAIL_DOMAIN
+```
+
+Outbound replies land in Mailpit: http://localhost:8025  
+
+Production Postmark is optional — leave `POSTMARK_*` empty in `.env.example` until you deploy; then set the server token, inbound Basic auth, `MAIL_DOMAIN`, and point Postmark inbound at `https://your-host/api/webhooks/postmark/inbound`.
 
 ## Testing and CI
 

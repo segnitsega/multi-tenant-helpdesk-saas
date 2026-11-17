@@ -15,6 +15,8 @@ const schema = z.object({
   AUTH_GOOGLE_SECRET: z.string().optional(),
   MAIL_DOMAIN: z.string(),
   MAIL_FROM_NAME: z.string().default("Relay"),
+  /** Verified Postmark Sender Signature email (required for outbound with Postmark). */
+  MAIL_FROM_EMAIL: z.string().email().optional(),
   SMTP_URL: z.string().optional(), // dev (Mailpit)
   POSTMARK_SERVER_TOKEN: z.string().optional(), // prod
   POSTMARK_INBOUND_USER: z.string().optional(),
