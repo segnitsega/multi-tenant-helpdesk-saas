@@ -6,6 +6,8 @@ import type { RealtimeEvent } from "@/types/events";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/** Vercel Fluid Compute: keep SSE open as long as the plan allows (Hobby max 300s). */
+export const maxDuration = 300;
 
 function encodeSse(event: RealtimeEvent | { comment: string }): string {
   if ("comment" in event) {
