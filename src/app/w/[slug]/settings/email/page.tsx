@@ -9,6 +9,7 @@ import {
 } from "@/server/services/inbound-email.service";
 import { SettingsLayout } from "@/components/layout/settings-layout";
 import { EmailSettingsPanel } from "@/features/email-settings/components/email-settings";
+import { SettingsAccessDenied } from "@/components/settings-access-denied";
 
 export default async function EmailSettingsPage({
   params,
@@ -21,7 +22,9 @@ export default async function EmailSettingsPage({
   try {
     assertCan(ctx, "settings.manage");
   } catch (error) {
-    if (error instanceof ForbiddenError) notFound();
+    if (error instanceof ForbiddenError) {
+      return <SettingsAccessDenied slug={slug} readonly={ctx.readonly} />;
+    }
     throw error;
   }
 

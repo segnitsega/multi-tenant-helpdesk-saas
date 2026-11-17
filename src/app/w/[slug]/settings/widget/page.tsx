@@ -8,6 +8,7 @@ import { effectivePlan } from "@/lib/effective-plan";
 import { planLimits } from "@/config/plans";
 import { WidgetSettingsForm } from "@/features/widget-settings/components/widget-settings-form";
 import { SettingsLayout } from "@/components/layout/settings-layout";
+import { SettingsAccessDenied } from "@/components/settings-access-denied";
 import { env } from "@/server/env";
 
 export default async function WidgetSettingsPage({
@@ -21,7 +22,9 @@ export default async function WidgetSettingsPage({
   try {
     assertCan(ctx, "settings.manage");
   } catch (e) {
-    if (e instanceof ForbiddenError) notFound();
+    if (e instanceof ForbiddenError) {
+      return <SettingsAccessDenied slug={slug} readonly={ctx.readonly} />;
+    }
     throw e;
   }
 

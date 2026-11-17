@@ -1,10 +1,10 @@
-import { notFound } from "next/navigation";
 import { getTenantContext } from "@/server/tenancy/context";
 import { assertCan } from "@/server/tenancy/permissions";
 import { ForbiddenError } from "@/lib/api-error";
 import { listAutomationRules } from "@/server/services/automation.service";
 import { SettingsLayout } from "@/components/layout/settings-layout";
 import { AutomationsSettings } from "@/features/automations/components/automations-settings";
+import { SettingsAccessDenied } from "@/components/settings-access-denied";
 import type {
   AutomationAction,
   AutomationConditions,
@@ -21,7 +21,9 @@ export default async function AutomationsSettingsPage({
   try {
     assertCan(ctx, "settings.manage");
   } catch (error) {
-    if (error instanceof ForbiddenError) notFound();
+    if (error instanceof ForbiddenError) {
+      return <SettingsAccessDenied slug={slug} readonly={ctx.readonly} />;
+    }
     throw error;
   }
 

@@ -13,18 +13,64 @@ export const contract = contractFromJson<Contract>(contractJson);
 
 export type AppDb = ReturnType<typeof createDb>;
 
-function resolveIpv4(hostname: string): string {
-  const out = execFileSync("getent", ["ahostsv4", hostname], {
-    encoding: "utf8",
-  });
-  const address = out
-    .split("\n")
-    .map((line) => line.trim().split(/\s+/)[0])
-    .find((value) => Boolean(value));
-  if (!address) {
-    throw new Error(`No IPv4 address found for ${hostname}`);
+function parseGetentIpv4(output: string): string | null {
+  return (
+    output
+      .split("\n")
+      .map((line) => line.trim().split(/\s+/)[0])
+      .find((value) => Boolean(value)) ?? null
+  );
+}
+
+function resolveIpv4WithGetent(hostname: string): string | null {
+  try {
+    const out = execFileSync("getent", ["ahostsv4", hostname], {
+      encoding: "utf8",
+      timeout: 5_000,
+    });
+    return parseGetentIpv4(out);
+  } catch {
+    return null;
   }
-  return address;
+}
+
+function resolveIpv4WithNode(hostname: string): string | null {
+  try {
+    const script = `
+      require("dns").lookup(${JSON.stringify(hostname)}, { family: 4 }, (err, address) => {
+        if (err || !address) process.exit(1);
+        process.stdout.write(address);
+      });
+    `;
+    const out = execFileSync(process.execPath, ["-e", script], {
+      encoding: "utf8",
+      timeout: 8_000,
+    });
+    const address = out.trim();
+    return address || null;
+  } catch {
+    return null;
+  }
+}
+
+function sleepSync(ms: number) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function resolveIpv4(hostname: string): string {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const fromGetent = resolveIpv4WithGetent(hostname);
+    if (fromGetent) return fromGetent;
+
+    const fromNode = resolveIpv4WithNode(hostname);
+    if (fromNode) return fromNode;
+
+    if (attempt < 3) sleepSync(250 * attempt);
+  }
+
+  throw new Error(
+    `Could not resolve IPv4 for ${hostname}. Check network/DNS, then retry.`,
+  );
 }
 
 function createIpv4Pool(url: string) {
