@@ -198,8 +198,9 @@ export async function seedEmailShowcase(
       workspaceId,
       name: rule.name,
       trigger: rule.trigger,
-      conditions: rule.conditions,
-      actions: rule.actions,
+      // Prisma Json columns require JsonValue; structured action unions need a clone.
+      conditions: JSON.parse(JSON.stringify(rule.conditions)),
+      actions: JSON.parse(JSON.stringify(rule.actions)),
       enabled: true,
       position: position++,
     });
