@@ -7,7 +7,6 @@ Multi-tenant shared inbox for support teams — keyboard-first triage, email + w
 | **Stack** | Next.js App Router · Auth.js · Prisma 8 · Postgres RLS · Redis/BullMQ · TipTap · Stripe · Postmark · S3 |
 | **Demo** | `/demo` (read-only) · seed logins below |
 | **Deploy** | Web → Vercel · Worker → Fly (or any always-on Node host) |
-| **CI** | [![CI](https://github.com/segnitsega/multi-tenant-helpdesk-saas/actions/workflows/ci.yml/badge.svg)](https://github.com/segnitsega/multi-tenant-helpdesk-saas/actions/workflows/ci.yml) |
 
 ## Why Relay
 
